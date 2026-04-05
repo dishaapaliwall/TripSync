@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:padding="20dp">
+
+    <!-- Plane -->
+    <ImageView
+        android:id="@+id/planeIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_airplane"
+        app:tint="#8B1C2D"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:rotation="20"/>
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/logo"
+        android:text="Welcome Back"
+        android:textColor="#8B1C2D"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_below="@id/planeIcon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- Subtitle -->
+    <TextView
+        android:id="@+id/subtitle"
+        android:text="Sign in to continue your journey"
+        android:textColor="#FF2D55"
+        android:textSize="14sp"
+        android:layout_below="@id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- Email Section -->
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/subtitle"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:text="Email"
+        android:textColor="#FF2D55"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/email"
+        android:hint="Enter your email"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/emailLabel"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textEmailAddress"/>
+
+    <!-- Password Section -->
+    <TextView
+        android:id="@+id/passwordLabel"
+        android:text="Password"
+        android:textColor="#FF2D55"
+        android:textSize="14sp"
+        android:layout_below="@id/email"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/password"
+        android:hint="Enter your password"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:background="@drawable/input_bg"
+        android:layout_below="@id/passwordLabel"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"/>
+
+    <TextView
+        android:id="@+id/forgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forgot Password?"
+        android:textColor="#FF2D55"
+        android:textSize="14sp"
+        android:layout_below="@id/password"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="4dp"/>
+
+    <!-- Login Button -->
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_below="@id/forgotPassword"
+        android:layout_marginTop="0dp"
+        android:backgroundTint="#78182C"
+        android:text="Log In"
+        android:textColor="#FFFFFF" />
+
+    <!-- OR Divider (FIXED: Added layout_width="0dp") -->
+    <LinearLayout
+        android:id="@+id/orSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginButton"
+        android:layout_marginTop="3dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#44FF2D55" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:text=" OR "
+            android:textColor="#FF2D55"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#44FF2D55" />
+    </LinearLayout>
+
+    <!-- Google Button -->
+    <Button
+        android:id="@+id/googleButton"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_below="@id/orSection"
+        android:layout_marginTop="3dp"
+        android:backgroundTint="#1E1E1E"
+        android:text="Continue with Google"
+        android:textAllCaps="false"
+        android:textColor="#D12B4D" />
+
+    <!-- Sign Up Text -->
+    <TextView
+        android:id="@+id/signUpText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/googleButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="3dp"
+        android:clickable="true"
+        android:text="Don't have an account? Sign Up"
+        android:textColor="#FF2D55"
+        android:textSize="13sp" />
+
+    <!-- Bottom Wave -->
+    <ImageView
+        android:id="@+id/wave"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/vector_2"
+        android:scaleType="fitXY"/>
+
+</RelativeLayout>

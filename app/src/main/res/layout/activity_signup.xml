@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/signup_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:padding="20dp">
+
+    <!-- WAVE CUT -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:layout_margin="-20dp"
+        android:layout_marginTop="0dp"/>
+
+    <!-- BACK BUTTON -->
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/titleSignup"
+        android:text="Create Account"
+        android:textColor="@color/black"
+        android:fontFamily="@font/dm_sans_bold"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/subtitleSignup"
+        android:text="Join TripSync today"
+        android:textColor="#3C1F25"
+        android:textSize="18sp"
+        android:fontFamily="@font/dm_sans_medium"
+        android:layout_below="@id/titleSignup"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- FORM START -->
+    <TextView
+        android:id="@+id/nameLabel"
+        android:text="Full Name"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/subtitleSignup"
+        android:layout_marginTop="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupName"
+        android:hint="Enter your full name"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/nameLabel"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPersonName"/>
+
+    <TextView
+        android:id="@+id/emailLabelSignup"
+        android:text="Email Address"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/signupName"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupEmail"
+        android:hint="Enter your email address"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/emailLabelSignup"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textEmailAddress"/>
+
+    <TextView
+        android:id="@+id/passLabelSignup"
+        android:text="Password"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/signupEmail"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupPassword"
+        android:hint="Enter your password"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/passLabelSignup"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"/>
+
+    <!-- BUTTON -->
+    <Button
+        android:id="@+id/btnSignup"
+        android:text="Create Account"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#78182C"
+        android:layout_below="@id/signupPassword"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"/>
+
+    <!-- LOGIN TEXT -->
+    <TextView
+        android:id="@+id/goToLogin"
+        android:text="Already have an account? Log In"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/btnSignup"
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

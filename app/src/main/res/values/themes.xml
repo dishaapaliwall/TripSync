@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.TripSync" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+    </style>
+
+    <style name="Theme.TripSync" parent="Base.Theme.TripSync" />
+</resources>
