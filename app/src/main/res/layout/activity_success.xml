@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- 🔥 WAVE BACKGROUND -->
+    <ImageView
+        android:id="@+id/waveBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/vector"
+        android:scaleType="fitXY"
+        android:alpha="0.9"
+        android:importantForAccessibility="no"/>
+
+    <!-- 🔥 CENTER CONTENT -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <!-- CIRCLE -->
+        <View
+            android:id="@+id/circle"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:background="@drawable/circle_bg"
+            android:layout_centerInParent="true"/>
+
+        <!-- THUMB ICON -->
+        <ImageView
+            android:id="@+id/thumb"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_thumb"
+            app:tint="#8B1C2D"
+            android:layout_centerInParent="true"
+            android:importantForAccessibility="no"/>
+
+        <!-- TEXT -->
+        <TextView
+            android:id="@+id/successText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logged_in"
+            android:textColor="#000000"
+            android:textSize="26sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_below="@id/circle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

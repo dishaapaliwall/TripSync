@@ -9,8 +9,8 @@
     <!-- TripSync Text -->
     <TextView
         android:id="@+id/title"
-        android:text="TripSync"
-        android:textColor="#FF2D55"
+        android:text="@string/tripsync"
+        android:textColor="#8B1C2D"
         android:textSize="32sp"
         android:textStyle="bold"
         android:layout_width="wrap_content"
@@ -23,10 +23,11 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/ic_airplane"
-        app:tint="#FF2D55"
+        app:tint="#8B1C2D"
         android:layout_toEndOf="@id/title"
         android:layout_alignTop="@id/title"
         android:layout_marginStart="8dp"
-        android:rotation="20"/>
+        android:rotation="20"
+        android:importantForAccessibility="no"/>
 
 </RelativeLayout>

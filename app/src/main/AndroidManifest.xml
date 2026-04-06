@@ -12,9 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TripSync">
         <activity
-            android:name=".SignupActivity"
+            android:name=".SuccessActivity"
             android:exported="false" />
-        <!-- Splash = First Screen -->
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" /> <!-- Splash = First Screen -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">

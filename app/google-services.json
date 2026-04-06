@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "39577886215",
+    "project_id": "tripsync-f3f49",
+    "storage_bucket": "tripsync-f3f49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39577886215:android:cb44dbbd32b64a28f094a2",
+        "android_client_info": {
+          "package_name": "com.yay.tripsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZv7b6J01KxQIm-NIqgce8eWxgfHsRCBU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 package com.yay.tripsync;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,11 +13,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText;
     private Button loginButton;
-    private TextView forgotPassword;
+    private TextView forgotPassword, signUpText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,35 +27,53 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Fixing Window Insets (Status bar/Navigation bar overlap)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Initialize Views
+        // 🔥 Firebase
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        // Views
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.loginButton);
         forgotPassword = findViewById(R.id.forgotPassword);
+        signUpText = findViewById(R.id.signUpText);
 
-        // Login Button Click
+        // 🔥 LOGIN BUTTON
         loginButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please enter all details", Toast.LENGTH_SHORT).show();
-            } else {
-                // Yahan aap apna login logic (Firebase/API) add kar sakte hain
-                Toast.makeText(MainActivity.this, "Logging in...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
+                            intent.putExtra("type", "login");
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(MainActivity.this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
-        // Forgot Password Click
+        // 🔥 FORGOT PASSWORD
         forgotPassword.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "Forgot Password clicked", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.forgot_password, Toast.LENGTH_SHORT).show();
+        });
+
+        // 🔥 SIGNUP NAVIGATION
+        signUpText.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, SignupActivity.class));
         });
     }
 }

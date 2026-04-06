@@ -18,7 +18,7 @@ public class BlanketView extends View {
         this.W = W;
         this.H = H;
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.parseColor("#FF2D55"));
+        paint.setColor(Color.parseColor("#8B1C2D"));
         paint.setStyle(Paint.Style.FILL);
     }
 
