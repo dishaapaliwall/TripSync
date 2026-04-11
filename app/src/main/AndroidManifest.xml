@@ -12,11 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TripSync">
         <activity
-            android:name=".SuccessActivity"
+            android:name=".join_trip"
             android:exported="false" />
         <activity
-            android:name=".SignupActivity"
-            android:exported="false" /> <!-- Splash = First Screen -->
+            android:name=".NewTripActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TripSync" /> <!-- Splash Activity is the Entry Point -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
@@ -28,6 +29,15 @@
         </activity> <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
+            android:exported="false" /> <!-- Signup Screen -->
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" /> <!-- Success Screen -->
+        <activity
+            android:name=".SuccessActivity"
+            android:exported="false" /> <!-- Trip Details Screen -->
+        <activity
+            android:name=".TripActivity"
             android:exported="false" />
     </application>
 

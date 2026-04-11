@@ -59,6 +59,10 @@ public class SuccessActivity extends AppCompatActivity {
 
         // 🔥 LOGIN / SIGNUP CHECK
         String type = getIntent().getStringExtra("type");
+        // 🔥 THUMB CLICK → OPEN TRIP SCREEN
+        thumb.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(SuccessActivity.this, TripActivity.class));
+        });
 
         if(type != null && type.equals("signup")){
             text.setText(R.string.signed_up);

@@ -18,8 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class MainActivity extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText;
-    private Button loginButton;
-    private TextView forgotPassword, signUpText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
         // Views
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
-        loginButton = findViewById(R.id.loginButton);
-        forgotPassword = findViewById(R.id.forgotPassword);
-        signUpText = findViewById(R.id.signUpText);
+        Button loginButton = findViewById(R.id.loginButton);
+        TextView forgotPassword = findViewById(R.id.forgotPassword);
+        TextView signUpText = findViewById(R.id.signUpText);
 
         // 🔥 LOGIN BUTTON
         loginButton.setOnClickListener(v -> {
@@ -56,10 +54,15 @@ public class MainActivity extends AppCompatActivity {
             auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
-                            intent.putExtra("type", "login");
-                            startActivity(intent);
-                            finish();
+                            // 🔥 CHECK EMAIL VERIFIED
+                            if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
+                                Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
+                                intent.putExtra("type", "login");
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Please verify your email first", Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Toast.makeText(MainActivity.this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
                         }
@@ -67,13 +70,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 🔥 FORGOT PASSWORD
-        forgotPassword.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, R.string.forgot_password, Toast.LENGTH_SHORT).show();
-        });
+        forgotPassword.setOnClickListener(v -> Toast.makeText(MainActivity.this, R.string.forgot_password, Toast.LENGTH_SHORT).show());
 
         // 🔥 SIGNUP NAVIGATION
-        signUpText.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, SignupActivity.class));
-        });
+        signUpText.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SignupActivity.class)));
     }
 }
