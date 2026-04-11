@@ -11,31 +11,50 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TripSync">
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".profile"
+            android:exported="false" />
+
         <activity
             android:name=".join_trip"
             android:exported="false" />
+
         <activity
             android:name=".NewTripActivity"
             android:exported="false"
-            android:theme="@style/Theme.TripSync" /> <!-- Splash Activity is the Entry Point -->
+            android:theme="@style/Theme.TripSync" />
+
+        <!-- Splash Activity is the Entry Point -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Main Screen -->
+        </activity>
+
+        <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" /> <!-- Signup Screen -->
+            android:exported="false" />
+
+        <!-- Signup Screen -->
         <activity
             android:name=".SignupActivity"
-            android:exported="false" /> <!-- Success Screen -->
+            android:exported="false" />
+
+        <!-- Success Screen -->
         <activity
             android:name=".SuccessActivity"
-            android:exported="false" /> <!-- Trip Details Screen -->
+            android:exported="false" />
+
+        <!-- Trip Details Screen -->
         <activity
             android:name=".TripActivity"
             android:exported="false" />

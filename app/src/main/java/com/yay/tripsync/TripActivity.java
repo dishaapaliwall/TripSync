@@ -83,8 +83,18 @@ public class TripActivity extends AppCompatActivity {
         findViewById(R.id.navNotif).setOnClickListener(v ->
                 Toast.makeText(this, "Notifications coming soon!", Toast.LENGTH_SHORT).show());
 
-        findViewById(R.id.navProfile).setOnClickListener(v ->
-                Toast.makeText(this, "Profile screen coming soon!", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.navProfile).setOnClickListener(v -> {
+            Intent intent = new Intent(TripActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+
+        // Add click listener to profile image at top
+        if (profileImage != null) {
+            profileImage.setOnClickListener(v -> {
+                Intent intent = new Intent(TripActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            });
+        }
 
         // 🔥 BUTTONS
         findViewById(R.id.btnJoin).setOnClickListener(v -> {
