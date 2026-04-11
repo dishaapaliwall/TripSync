@@ -14,20 +14,19 @@
 
         <activity
             android:name=".ProfileActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".profile"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".join_trip"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".NewTripActivity"
             android:exported="false"
-            android:theme="@style/Theme.TripSync" />
+            android:theme="@style/Theme.TripSync"
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- Splash Activity is the Entry Point -->
         <activity
@@ -42,12 +41,14 @@
         <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- Signup Screen -->
         <activity
             android:name=".SignupActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- Success Screen -->
         <activity
@@ -57,7 +58,8 @@
         <!-- Trip Details Screen -->
         <activity
             android:name=".TripActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
     </application>
 
 </manifest>

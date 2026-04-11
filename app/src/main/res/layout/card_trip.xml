@@ -1,73 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="20dp"
     android:orientation="vertical"
-    android:background="@drawable/card_bg"
+    android:background="@drawable/card_outer_bg"
     android:clipToOutline="true">
 
-    <!-- IMAGE + STATUS -->
+    <!-- 🔥 IMAGE + STATUS -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="160dp">
+        android:layout_height="170dp">
 
         <ImageView
             android:id="@+id/tripImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/vector4"/>
+            tools:src="@drawable/vector_2" />
 
         <!-- STATUS BADGE -->
         <TextView
             android:id="@+id/tripStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upcoming"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:layout_gravity="top|end"
-            android:layout_margin="10dp"
-            android:background="@drawable/status_bg"/>
+            android:layout_margin="12dp"
+            android:background="@drawable/status_bg"
+            tools:text="Upcoming" />
     </FrameLayout>
 
-    <!-- RED SECTION -->
+    <!-- 🔥 RED CONTENT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#8B1C2D"
+        android:background="@drawable/card_red_bg"
         android:padding="14dp">
 
-        <!-- TITLE -->
-        <TextView
-            android:id="@+id/tripName"
-            android:text="Manali Snow Trip"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- TITLE -->
+            <TextView
+                android:id="@+id/tripName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_alignParentStart="true"
+                tools:text="Trip Name" />
+
+            <!-- TRIP CODE -->
+            <TextView
+                android:id="@+id/tvTripCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/badge_bg"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="TRIP-ABCD" />
+        </RelativeLayout>
 
         <!-- LOCATION -->
-        <TextView
-            android:id="@+id/tripLocation"
-            android:text="📍 Location"
-            android:textColor="#F3DCE1"
-            android:textSize="13sp"
-            android:layout_marginTop="4dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_location"
+                app:tint="#F3DCE1" />
+
+            <TextView
+                android:id="@+id/tripLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#F3DCE1"
+                android:textSize="13sp"
+                android:layout_marginStart="6dp"
+                tools:text="Location" />
+        </LinearLayout>
 
         <!-- DATE -->
-        <TextView
-            android:id="@+id/tripDate"
-            android:text="📅 Date"
-            android:textColor="#F3DCE1"
-            android:textSize="13sp"
-            android:layout_marginTop="2dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="#F3DCE1" />
+
+            <TextView
+                android:id="@+id/tripDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#F3DCE1"
+                android:textSize="13sp"
+                android:layout_marginStart="6dp"
+                tools:text="Date Range" />
+        </LinearLayout>
 
         <!-- DIVIDER -->
         <View
@@ -76,16 +132,16 @@
             android:layout_marginTop="10dp"
             android:background="#A93A51"/>
 
-        <!-- 💰 SPENT -->
+        <!-- 💰 MONEY -->
         <TextView
             android:id="@+id/tripMoney"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Spent : ₹ 0 / ₹ 0"
-            android:textColor="#3DFFB5"
+            android:textColor="#2BFFB2"
             android:textSize="13sp"
             android:gravity="end"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            tools:text="Spent : ₹ 0 / ₹ 0" />
 
     </LinearLayout>
 

@@ -2,6 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -53,7 +54,7 @@
             android:layout_height="65dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:src="@drawable/profile"
+            android:src="@drawable/ic_profile"
             app:civ_border_color="#33FFFFFF"
             app:civ_border_width="1dp"/>
 
@@ -80,7 +81,7 @@
                 <ImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:src="@drawable/search"
+                    android:src="@drawable/ic_search"
                     android:layout_marginEnd="8dp"
                     app:tint="#FFFFFF"/>
                 <TextView
@@ -103,9 +104,9 @@
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/add"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_add_circle"
                     android:layout_marginEnd="8dp"
                     app:tint="#FFFFFF"/>
                 <TextView
@@ -119,64 +120,20 @@
     </RelativeLayout>
 
     <!-- 🔥 TRIP LIST -->
-    <ScrollView
-        android:id="@+id/tripScroll"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewTrips"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="250dp"
         android:layout_marginBottom="61dp"
-        android:padding="16dp"
-        android:clipToPadding="false">
-
-        <LinearLayout
-            android:id="@+id/tripContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- SAMPLE TRIP CARD -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/card_bg"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Manali Trip"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Himachal Pradesh"
-                    android:textColor="#CCCCCC"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="12 June - 18 June"
-                    android:textColor="#AAAAAA"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Upcoming"
-                    android:textColor="#FF5C8A"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="100dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/card_trip"
+        tools:itemCount="5"/>
 
     <!-- 🔥 NO TRIP TEXT -->
     <TextView
@@ -230,7 +187,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/home"
+                android:src="@drawable/ic_home"
                 android:scaleType="fitCenter"/>
 
             <TextView
@@ -257,13 +214,13 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/trips"
+                android:src="@drawable/ic_luggage"
                 android:scaleType="fitCenter"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trips"
+                android:text="Past Trips"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:layout_marginTop="2dp"/>
@@ -284,7 +241,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/notification"
+                android:src="@drawable/ic_alerts"
                 android:scaleType="fitCenter"/>
 
             <TextView
@@ -311,7 +268,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/profile"
+                android:src="@drawable/ic_profile"
                 android:scaleType="fitCenter"/>
 
             <TextView

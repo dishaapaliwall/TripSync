@@ -51,12 +51,26 @@
         android:orientation="vertical"
         android:paddingHorizontal="24dp">
 
-        <!-- 🔴 LOGO IMAGE -->
-        <ImageView
+        <!-- 🔴 LOGO SECTION -->
+        <FrameLayout
             android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:src="@drawable/img"
-            android:scaleType="fitCenter" />
+            android:layout_height="200dp">
+
+            <!-- Gradient Circle -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/join_circle_bg"
+                android:scaleType="fitCenter" />
+
+            <!-- Key with Keychain -->
+            <ImageView
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_key_chain"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
 
         <!-- 🏷️ TEXT LABELS -->
         <TextView

@@ -9,10 +9,11 @@ public class Trip {
     private double budget;
     private double spent;
     private String imageUrl;
+    private String tripCode;
 
     public Trip() {}
 
-    public Trip(String name, String location, String startDate, String endDate, String status, double budget, double spent, String imageUrl) {
+    public Trip(String name, String location, String startDate, String endDate, String status, double budget, double spent, String imageUrl, String tripCode) {
         this.name = name;
         this.location = location;
         this.startDate = startDate;
@@ -21,6 +22,7 @@ public class Trip {
         this.budget = budget;
         this.spent = spent;
         this.imageUrl = imageUrl;
+        this.tripCode = tripCode;
     }
 
     public String getName() { return name; }
@@ -46,4 +48,7 @@ public class Trip {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getTripCode() { return tripCode; }
+    public void setTripCode(String tripCode) { this.tripCode = tripCode; }
 }

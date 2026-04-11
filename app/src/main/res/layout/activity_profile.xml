@@ -15,11 +15,6 @@
         android:layout_height="356dp"
         android:clipChildren="false">
 
-        <!-- 1. WHITE CARD (Base Layer) -->
-
-        <!-- 2. TOP WAVE (Middle Layer) -->
-
-        <!-- 3. PROFILE CIRCLE (Top Layer) -->
         <LinearLayout
             android:id="@+id/whiteCard"
             android:layout_width="match_parent"
@@ -37,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_bold"
-                android:text="Neha Gupta"
+                android:text="User Name"
                 android:textColor="#8B1C2D"
                 android:layout_marginTop="40dp"
                 android:textSize="20sp" />
@@ -47,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="neha@email.com"
+                android:text="user@email.com"
                 android:textColor="#FF4D6D"
                 android:textSize="14sp" />
 
@@ -71,7 +66,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
-                        android:text="2"
+                        android:text="0"
                         android:textColor="#FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -96,7 +91,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
-                        android:text="3"
+                        android:text="0"
                         android:textColor="#FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -139,7 +134,7 @@
                 android:layout_width="95dp"
                 android:layout_height="95dp"
                 android:layout_gravity="center"
-                android:src="@drawable/profile"
+                android:src="@drawable/ic_profile"
                 app:civ_border_color="#FFFFFF"
                 app:civ_border_width="2dp"/>
         </FrameLayout>
@@ -167,14 +162,13 @@
             android:elevation="15dp" />
     </RelativeLayout>
 
-    <!-- 📋 OPTIONS SECTION (Removed ScrollView) -->
+    <!-- 📋 OPTIONS SECTION -->
     <LinearLayout
         android:id="@+id/optionsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/headerArea"
         android:layout_above="@id/bottomNav"
-        android:layout_marginTop="0dp"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
         android:paddingBottom="20dp">
@@ -191,7 +185,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/settings"
+                android:src="@drawable/ic_settings"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -215,7 +209,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/friends"
+                android:src="@drawable/ic_friends"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -238,7 +232,7 @@
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:src="@drawable/help"
+                android:src="@drawable/ic_help"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -281,7 +275,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/home"
+                android:src="@drawable/ic_home"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -302,7 +296,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/trips"
+                android:src="@drawable/ic_luggage"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -323,7 +317,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/notification"
+                android:src="@drawable/ic_alerts"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -344,7 +338,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/profile"
+                android:src="@drawable/ic_profile"
                 app:tint="#FFFFFF"/>
             <TextView
                 android:layout_width="wrap_content"
