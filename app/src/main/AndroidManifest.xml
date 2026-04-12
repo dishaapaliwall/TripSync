@@ -11,24 +11,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TripSync">
-
+        <activity
+            android:name=".TripDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".join_trip"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".NewTripActivity"
             android:exported="false"
             android:theme="@style/Theme.TripSync"
-            android:windowSoftInputMode="adjustPan" />
-
-        <!-- Splash Activity is the Entry Point -->
+            android:windowSoftInputMode="adjustPan" /> <!-- Splash Activity is the Entry Point -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
