@@ -16,14 +16,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -61,10 +59,18 @@ public class TripActivity extends AppCompatActivity {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             setupUserProfile(user);
+            repairUserEmail(user); // 🔥 Fix missing email in Firestore
         }
 
         setupClickListeners();
         loadTrips();
+    }
+
+    private void repairUserEmail(FirebaseUser user) {
+        // Ensure email is always present in Firestore for search to work
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", user.getEmail().toLowerCase().trim());
+        db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
     }
 
     private void setupUserProfile(FirebaseUser user) {
@@ -91,11 +97,9 @@ public class TripActivity extends AppCompatActivity {
     private void setupClickListeners() {
         findViewById(R.id.navHome).setOnClickListener(v -> {});
         
-        // 🔥 PAST TRIPS NAVIGATION
         findViewById(R.id.navTrips).setOnClickListener(v -> 
             startActivity(new Intent(TripActivity.this, PastTripsActivity.class)));
         
-        // 🔥 NOTIFICATIONS NAVIGATION
         findViewById(R.id.navNotif).setOnClickListener(v -> 
             startActivity(new Intent(TripActivity.this, NotificationsActivity.class)));
         

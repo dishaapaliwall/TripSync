@@ -8,104 +8,115 @@
     android:background="#000000"
     android:fitsSystemWindows="true">
 
-    <!-- FIXED TOP BACKGROUND -->
+    <!-- Top Wave (vector3 like Help & Support) -->
     <ImageView
         android:id="@+id/waveTop"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:src="@drawable/vector4"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
         android:scaleType="fitXY"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="-23dp"
-        android:elevation="5dp"
         android:importantForAccessibility="no"/>
 
-    <!-- FIXED HEADER SECTION -->
+    <!-- Header -->
     <ImageView
         android:id="@+id/btnBack"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_margin="16dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
         android:src="@drawable/ic_back"
-        android:elevation="15dp"
-        app:tint="#FFFFFF"
+        app:tint="@color/black"
         android:clickable="true"
-        android:focusable="true"/>
+        android:focusable="true"
+        android:elevation="5dp"/>
 
     <TextView
         android:id="@+id/titleFriends"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Friends"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        android:textStyle="bold"
         android:fontFamily="@font/dm_sans_bold"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="50dp"
-        android:elevation="15dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:elevation="5dp"/>
 
+    <!-- Find Friends Section (Fixed outside ScrollView) -->
+    <LinearLayout
+        android:id="@+id/searchSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/waveTop"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Find Friends"
+            android:textColor="#FF2D55"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_marginStart="4dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="15dp">
+
+            <EditText
+                android:id="@+id/etSearchEmail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="Enter email address"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#66FFFFFF"
+                android:textSize="15sp"
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionSearch"
+                android:layout_toStartOf="@id/btnSearchFriend"/>
+
+            <ImageView
+                android:id="@+id/btnSearchFriend"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_search"
+                app:tint="#FF2D55"
+                android:clickable="true"
+                android:focusable="true"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Scrollable content starting strictly AFTER the search Section -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/waveTop"
+        android:layout_below="@id/searchSection"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="24dp"
         android:clipToPadding="false"
-        android:paddingBottom="100dp">
+        android:paddingBottom="40dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="24dp">
-
-            <!-- SEARCH SECTION -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Find Friends"
-                android:textColor="#FF2D55"
-                android:textSize="14sp"
-                android:fontFamily="@font/dm_sans_bold"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="4dp"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/input_bg"
-                android:paddingHorizontal="15dp">
-
-                <EditText
-                    android:id="@+id/etSearchEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
-                    android:hint="Enter email address"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#66FFFFFF"
-                    android:textSize="15sp"
-                    android:inputType="textEmailAddress"
-                    android:imeOptions="actionSearch"
-                    android:layout_toStartOf="@id/btnSearchFriend"/>
-
-                <ImageView
-                    android:id="@+id/btnSearchFriend"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_search"
-                    app:tint="#FF2D55"
-                    android:clickable="true"
-                    android:focusable="true"/>
-            </RelativeLayout>
+            android:orientation="vertical">
 
             <!-- SEARCH RESULT CARD -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSearchResult"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="#1A1A1A"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
@@ -170,9 +181,9 @@
                 android:layout_height="wrap_content"
                 android:text="Incoming Requests"
                 android:textColor="#FF2D55"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_bold"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginStart="4dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -200,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:text="My Friends"
                 android:textColor="#FF2D55"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_bold"
                 android:layout_marginTop="30dp"
                 android:layout_marginStart="4dp"/>
@@ -210,18 +221,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="40dp"
                 tools:listitem="@layout/item_country"/>
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- BOTTOM WAVE -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_alignParentBottom="true"
-        android:src="@drawable/vector_2"
-        android:scaleType="fitXY"
-        android:importantForAccessibility="no"/>
 
 </RelativeLayout>
