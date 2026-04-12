@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- FIXED TOP WAVE -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:importantForAccessibility="no"/>
+
+    <!-- HEADER SECTION (Now just Back and Title) -->
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="20dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/black"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="6dp"
+            android:contentDescription="Back"/>
+
+        <TextView
+            android:id="@+id/titleCountry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Country / Region"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:elevation="6dp"/>
+    </RelativeLayout>
+
+    <!-- CONTENT SECTION -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/waveTop"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <!-- SAVE BUTTON (Positioned between Vector and Search Bar) -->
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textColor="#FF2D55"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_gravity="end"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"/>
+
+        <!-- Search Bar -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="15dp"
+            android:layout_marginBottom="20dp">
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="Search"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#66FFFFFF"
+                android:textSize="16sp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:inputType="text"
+                android:maxLines="1"
+                android:layout_toStartOf="@id/icSearch"/>
+
+            <ImageView
+                android:id="@+id/icSearch"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_search"
+                app:tint="#66FFFFFF"/>
+        </RelativeLayout>
+
+        <!-- Country List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCountries"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="20dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

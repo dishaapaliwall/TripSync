@@ -66,6 +66,41 @@
             android:name=".TripActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FriendsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HelpSupportActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".PersonalInformationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".SecurityPrivacyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CountryRegionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PastTripsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -175,13 +175,16 @@
 
         <!-- SETTINGS -->
         <LinearLayout
+            android:id="@+id/btnSettings"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:background="@drawable/option_bg"
             android:paddingHorizontal="20dp"
             android:layout_marginBottom="16dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
@@ -199,13 +202,16 @@
 
         <!-- FRIENDS -->
         <LinearLayout
+            android:id="@+id/btnFriends"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:background="@drawable/option_bg"
             android:paddingHorizontal="20dp"
             android:layout_marginBottom="16dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
@@ -223,12 +229,15 @@
 
         <!-- HELP -->
         <LinearLayout
+            android:id="@+id/btnHelp"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:background="@drawable/option_bg"
             android:paddingHorizontal="20dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"

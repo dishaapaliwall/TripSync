@@ -1,6 +1,7 @@
 package com.yay.tripsync;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -22,12 +23,20 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private EditText emailEditText, passwordEditText;
     private FirebaseAuth auth;
+    private FirebaseFirestore db;
     private GoogleSignInClient googleSignInClient;
 
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
@@ -54,17 +63,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 🔥 Firebase
         auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        // 🔥 Configure Google Sign-In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // Views
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         Button loginButton = findViewById(R.id.loginButton);
@@ -72,9 +73,26 @@ public class MainActivity extends AppCompatActivity {
         TextView forgotPassword = findViewById(R.id.forgotPassword);
         TextView signUpText = findViewById(R.id.signUpText);
 
-        // 🔥 LOGIN BUTTON
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Handle account switching
+        String switchEmail = getIntent().getStringExtra("switch_email");
+        if (switchEmail != null) {
+            switchEmail = switchEmail.toLowerCase().trim();
+            String savedPassword = getSavedPassword(switchEmail);
+            if (savedPassword != null) {
+                performAutoLogin(switchEmail, savedPassword);
+            } else {
+                emailEditText.setText(switchEmail);
+            }
+        }
+
         loginButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
+            String email = emailEditText.getText().toString().trim().toLowerCase();
             String password = passwordEditText.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
@@ -87,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null && user.isEmailVerified()) {
+                                saveAccountLocally(email, password);
                                 navigateToSuccess("login");
                             } else {
                                 Toast.makeText(MainActivity.this, "Please verify your email first", Toast.LENGTH_LONG).show();
@@ -97,17 +116,67 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        // 🔥 GOOGLE BUTTON
         googleButton.setOnClickListener(v -> {
-            Intent signInIntent = googleSignInClient.getSignInIntent();
-            googleSignInLauncher.launch(signInIntent);
+            googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+                Intent signInIntent = googleSignInClient.getSignInIntent();
+                googleSignInLauncher.launch(signInIntent);
+            });
         });
 
-        // 🔥 FORGOT PASSWORD
         forgotPassword.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ForgotPasswordActivity.class)));
-
-        // 🔥 SIGNUP NAVIGATION
         signUpText.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SignupActivity.class)));
+    }
+
+    private void performAutoLogin(String email, String password) {
+        if ("google_auth".equals(password)) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .setAccountName(email)
+                    .build();
+            GoogleSignInClient tempClient = GoogleSignIn.getClient(this, gso);
+            
+            tempClient.silentSignIn().addOnCompleteListener(this, task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    firebaseAuthWithGoogle(task.getResult().getIdToken());
+                } else {
+                    googleSignInLauncher.launch(tempClient.getSignInIntent());
+                }
+            });
+            return;
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        navigateToSuccess("login");
+                    } else {
+                        Toast.makeText(this, "Session expired, please login manually.", Toast.LENGTH_SHORT).show();
+                        emailEditText.setText(email);
+                    }
+                });
+    }
+
+    private String getSavedPassword(String email) {
+        SharedPreferences prefs = getSharedPreferences("TripSyncAccounts", MODE_PRIVATE);
+        return prefs.getString("pwd_" + email.toLowerCase(), null);
+    }
+
+    private void saveAccountLocally(String email, String password) {
+        String cleanEmail = email.toLowerCase().trim();
+        SharedPreferences prefs = getSharedPreferences("TripSyncAccounts", MODE_PRIVATE);
+        
+        Set<String> oldAccounts = prefs.getStringSet("saved_emails", new HashSet<>());
+        Set<String> newAccounts = new HashSet<>();
+        for (String acc : oldAccounts) {
+            newAccounts.add(acc.toLowerCase().trim());
+        }
+        newAccounts.add(cleanEmail);
+        
+        prefs.edit()
+                .putStringSet("saved_emails", newAccounts)
+                .putString("pwd_" + cleanEmail, password)
+                .commit();
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
@@ -115,7 +184,21 @@ public class MainActivity extends AppCompatActivity {
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        navigateToSuccess("google");
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user != null) {
+                            // 🔥 Sync Google User to Firestore
+                            Map<String, Object> userData = new HashMap<>();
+                            userData.put("name", user.getDisplayName());
+                            userData.put("email", user.getEmail().toLowerCase());
+                            userData.put("uid", user.getUid());
+                            
+                            db.collection("users").document(user.getUid())
+                                    .set(userData, SetOptions.merge())
+                                    .addOnSuccessListener(aVoid -> {
+                                        saveAccountLocally(user.getEmail(), "google_auth");
+                                        navigateToSuccess("google");
+                                    });
+                        }
                     } else {
                         Log.w(TAG, "Firebase auth with Google failed", task.getException());
                         Toast.makeText(MainActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();

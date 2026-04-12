@@ -12,6 +12,9 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class join_trip extends AppCompatActivity {
 
     private EditText etCode;
@@ -44,7 +47,9 @@ public class join_trip extends AppCompatActivity {
 
     private void handleJoinTrip(String code) {
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null) return;
+        if (user == null || user.getEmail() == null) return;
+
+        String userEmail = user.getEmail().toLowerCase().trim();
 
         // 1. Find the trip with this code
         db.collection("trips")
@@ -61,16 +66,20 @@ public class join_trip extends AppCompatActivity {
                             // Check if user is already the owner
                             String ownerId = doc.getString("userId");
                             if (user.getUid().equals(ownerId)) {
-                                Toast.makeText(this, "You are already in this trip!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "You are the owner of this trip!", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
-                            // Add user ID to a new 'members' array in the trip document
+                            // Update both members (UID) and participants (Email) to ensure visibility
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("members", FieldValue.arrayUnion(user.getUid()));
+                            updates.put("participants", FieldValue.arrayUnion(userEmail));
+
                             db.collection("trips").document(tripId)
-                                    .update("members", FieldValue.arrayUnion(user.getUid()))
+                                    .update(updates)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(this, "Successfully joined trip!", Toast.LENGTH_SHORT).show();
-                                        finish(); // Go back to main screen
+                                        finish();
                                     })
                                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to join: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                         }
