@@ -50,6 +50,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
+        <!-- Forgot Password Screen -->
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
         <!-- Success Screen -->
         <activity
             android:name=".SuccessActivity"
