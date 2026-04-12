@@ -14,9 +14,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -82,6 +85,7 @@ public class NewTripActivity extends AppCompatActivity {
         String start = etStart.getText().toString().trim();
         String end = etEnd.getText().toString().trim();
         String budgetStr = etBudget.getText().toString().trim();
+        String inviteStr = etInvite.getText().toString().trim();
 
         if (name.isEmpty() || location.isEmpty() || start.isEmpty() || end.isEmpty() || budgetStr.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -92,7 +96,6 @@ public class NewTripActivity extends AppCompatActivity {
         String calculatedStatus = "Upcoming";
         SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
         try {
-            // Support both / and . separators
             Date startDate = sdf.parse(start.replace(".", "/"));
             Date endDate = sdf.parse(end.replace(".", "/"));
             
@@ -110,10 +113,8 @@ public class NewTripActivity extends AppCompatActivity {
             } else {
                 calculatedStatus = "Upcoming";
             }
-            
-            Log.d("NewTrip", "Status logic: Today=" + todayMidnight + ", End=" + endDate + " -> " + calculatedStatus);
         } catch (ParseException e) {
-            Log.e("NewTrip", "Date parse error. Make sure format is d/M/yyyy", e);
+            Log.e("NewTrip", "Date parse error.", e);
         }
 
         final String status = calculatedStatus;
@@ -127,6 +128,19 @@ public class NewTripActivity extends AppCompatActivity {
 
         String tripCode = generateTripCode();
 
+        // 🔥 Handle Invite Emails
+        List<String> invitedEmails = new ArrayList<>();
+        if (!inviteStr.isEmpty()) {
+            // Split by comma or space
+            String[] splitEmails = inviteStr.split("[,\\s]+");
+            for (String email : splitEmails) {
+                String cleanEmail = email.trim().toLowerCase();
+                if (!cleanEmail.isEmpty()) {
+                    invitedEmails.add(cleanEmail);
+                }
+            }
+        }
+
         HashMap<String, Object> trip = new HashMap<>();
         trip.put("name", name);
         trip.put("location", location);
@@ -138,11 +152,13 @@ public class NewTripActivity extends AppCompatActivity {
         trip.put("userId", user.getUid());
         trip.put("imageUrl", "");
         trip.put("tripCode", tripCode);
+        trip.put("invitedEmails", invitedEmails); // 🔥 Save list of invited emails
+        trip.put("participants", Arrays.asList(user.getEmail())); // Creator is first participant
 
         db.collection("trips")
                 .add(trip)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Trip Created! Status: " + status, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Trip Created! Invites sent to " + invitedEmails.size() + " members.", Toast.LENGTH_LONG).show();
                     finish();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());

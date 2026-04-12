@@ -12,7 +12,20 @@
           "package_name": "com.yay.tripsync"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "39577886215-jthtuafe9lg4on6pip3kngm659ve5hed.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yay.tripsync",
+            "certificate_hash": "49e19d45600db9e3be61018c9963d72e3189eb21"
+          }
+        },
+        {
+          "client_id": "39577886215-hrm9pjpj5jidigqifinl04tldsfjprai.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAZv7b6J01KxQIm-NIqgce8eWxgfHsRCBU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "39577886215-hrm9pjpj5jidigqifinl04tldsfjprai.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

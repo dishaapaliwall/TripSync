@@ -2,6 +2,7 @@ package com.yay.tripsync;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,14 +16,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -47,28 +46,31 @@ public class TripActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // 🔥 VIEWS
         recyclerView = findViewById(R.id.recyclerViewTrips);
         noTripText = findViewById(R.id.noTripText);
         welcomeUser = findViewById(R.id.txtUser);
         profileImage = findViewById(R.id.profileImage);
 
-        // 🔥 SETUP RECYCLERVIEW
         tripList = new ArrayList<>();
         adapter = new TripAdapter(this, tripList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // 🔥 USER DATA
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             setupUserProfile(user);
+            repairUserEmail(user); // 🔥 Fix missing email in Firestore
         }
 
-        // 🔥 NAVIGATION & BUTTONS
         setupClickListeners();
-
         loadTrips();
+    }
+
+    private void repairUserEmail(FirebaseUser user) {
+        // Ensure email is always present in Firestore for search to work
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", user.getEmail().toLowerCase().trim());
+        db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
     }
 
     private void setupUserProfile(FirebaseUser user) {
@@ -79,10 +81,7 @@ public class TripActivity extends AppCompatActivity {
 
         long seed = user.getUid().hashCode();
         Random random = new Random(seed);
-        
-        random.nextInt();
-        random.nextInt();
-        
+        random.nextInt(); random.nextInt();
         int avatarIndex = random.nextInt(avatars.length);
         profileImage.setImageResource(avatars[avatarIndex]);
 
@@ -97,8 +96,12 @@ public class TripActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         findViewById(R.id.navHome).setOnClickListener(v -> {});
-        findViewById(R.id.navTrips).setOnClickListener(v -> Toast.makeText(this, "You are on Trips screen", Toast.LENGTH_SHORT).show());
-        findViewById(R.id.navNotif).setOnClickListener(v -> Toast.makeText(this, "Notifications coming soon!", Toast.LENGTH_SHORT).show());
+        
+        findViewById(R.id.navTrips).setOnClickListener(v -> 
+            startActivity(new Intent(TripActivity.this, PastTripsActivity.class)));
+        
+        findViewById(R.id.navNotif).setOnClickListener(v -> 
+            startActivity(new Intent(TripActivity.this, NotificationsActivity.class)));
         
         View.OnClickListener toProfile = v -> startActivity(new Intent(TripActivity.this, ProfileActivity.class));
         findViewById(R.id.navProfile).setOnClickListener(toProfile);
@@ -131,9 +134,15 @@ public class TripActivity extends AppCompatActivity {
         if (user == null) return;
 
         db.collection("trips")
-                .where(Filter.or(
-                        Filter.equalTo("userId", user.getUid()),
-                        Filter.arrayContains("members", user.getUid())
+                .where(Filter.and(
+                        Filter.or(
+                                Filter.equalTo("userId", user.getUid()),
+                                Filter.arrayContains("participants", user.getEmail().toLowerCase().trim())
+                        ),
+                        Filter.or(
+                                Filter.equalTo("status", "Upcoming"),
+                                Filter.equalTo("status", "Ongoing")
+                        )
                 ))
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -145,39 +154,9 @@ public class TripActivity extends AppCompatActivity {
                         noTripText.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Trip trip = new Trip();
-                            trip.setName(doc.getString("name"));
-                            trip.setLocation(doc.getString("location"));
-                            trip.setStartDate(doc.getString("startDate"));
-                            trip.setEndDate(doc.getString("endDate"));
-                            trip.setStatus(doc.getString("status"));
-                            trip.setTripCode(doc.getString("tripCode"));
-                            
-                            Double budget = doc.getDouble("budget");
-                            trip.setBudget(budget != null ? budget : 0.0);
-                            
-                            Double spent = doc.getDouble("spent");
-                            trip.setSpent(spent != null ? spent : 0.0);
-                            
-                            trip.setImageUrl(doc.getString("imageUrl"));
-
+                            Trip trip = doc.toObject(Trip.class);
                             tripList.add(trip);
                         }
-
-                        // 🔥 Sort trips: Latest (Upcoming) first, Oldest (Completed) last
-                        Collections.sort(tripList, (t1, t2) -> {
-                            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
-                            try {
-                                Date d1 = sdf.parse(t1.getStartDate().replace(".", "/"));
-                                Date d2 = sdf.parse(t2.getStartDate().replace(".", "/"));
-                                if (d1 == null || d2 == null) return 0;
-                                // Changed to d2.compareTo(d1) for Descending order (Future first)
-                                return d2.compareTo(d1);
-                            } catch (ParseException | NullPointerException e) {
-                                return 0;
-                            }
-                        });
-
                         adapter.notifyDataSetChanged();
                     }
                 })

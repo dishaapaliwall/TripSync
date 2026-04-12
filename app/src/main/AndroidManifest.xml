@@ -32,28 +32,73 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Main Screen -->
+        </activity>
+
+        <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" /> <!-- Signup Screen -->
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Signup Screen -->
         <activity
             android:name=".SignupActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" /> <!-- Success Screen -->
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Forgot Password Screen -->
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Success Screen -->
         <activity
             android:name=".SuccessActivity"
-            android:exported="false" /> <!-- Trip Details Screen -->
+            android:exported="false" />
+
+        <!-- Trip Details Screen -->
         <activity
             android:name=".TripActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" /> <!-- Temporary Chat Activity -->
+            android:windowSoftInputMode="adjustPan" />
+
         <activity
-            android:name=".ChatActivityTemp"
-            android:exported="true" />
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FriendsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HelpSupportActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".PersonalInformationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".SecurityPrivacyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CountryRegionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PastTripsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

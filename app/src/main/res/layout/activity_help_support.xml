@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- Top Wave -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:importantForAccessibility="no"/>
+
+    <!-- Header -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_back"
+        app:tint="@color/black"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="5dp"/>
+
+    <TextView
+        android:id="@+id/titleHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Help &amp; Support"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/dm_sans_bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:elevation="5dp"/>
+
+    <!-- Scrollable content with 15dp margin below the wave -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/waveTop"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- FAQ Section Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Frequently Asked Questions"
+                android:textColor="#FF2D55"
+                android:textSize="18sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"/>
+
+            <!-- FAQ Item 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/option_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="How to create a new trip?"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/dm_sans_bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Go to Home screen and click on \'New Trip\' button."
+                    android:textColor="#888888"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- FAQ Item 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/option_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="How to join a trip?"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/dm_sans_bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Use the trip code provided by the organizer to join."
+                    android:textColor="#888888"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Contact Section Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Still need help? Contact Us"
+                android:textColor="#FF2D55"
+                android:textSize="18sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="15dp"/>
+
+            <!-- Contact Buttons -->
+            <Button
+                android:id="@+id/btnEmailSupport"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Email Support"
+                android:backgroundTint="#1E1E1E"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:layout_marginBottom="12dp"
+                app:icon="@drawable/ic_alerts"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"/>
+
+            <Button
+                android:id="@+id/btnCallSupport"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Call Helpline"
+                android:backgroundTint="#78182C"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:layout_marginBottom="40dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

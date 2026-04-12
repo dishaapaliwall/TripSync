@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- Top Wave (vector3 like Help & Support) -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:importantForAccessibility="no"/>
+
+    <!-- Header -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_back"
+        app:tint="@color/black"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="5dp"/>
+
+    <TextView
+        android:id="@+id/titleFriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Friends"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/dm_sans_bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:elevation="5dp"/>
+
+    <!-- Find Friends Section (Fixed outside ScrollView) -->
+    <LinearLayout
+        android:id="@+id/searchSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/waveTop"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Find Friends"
+            android:textColor="#FF2D55"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_marginStart="4dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="15dp">
+
+            <EditText
+                android:id="@+id/etSearchEmail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="Enter email address"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#66FFFFFF"
+                android:textSize="15sp"
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionSearch"
+                android:layout_toStartOf="@id/btnSearchFriend"/>
+
+            <ImageView
+                android:id="@+id/btnSearchFriend"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_search"
+                app:tint="#FF2D55"
+                android:clickable="true"
+                android:focusable="true"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Scrollable content starting strictly AFTER the search Section -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/searchSection"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- SEARCH RESULT CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSearchResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:cardBackgroundColor="#1A1A1A"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:visibility="gone">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imgSearchUser"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@drawable/ic_profile"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/imgSearchUser"
+                        android:layout_marginStart="12dp"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvSearchName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="User Name"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/dm_sans_bold"/>
+
+                        <TextView
+                            android:id="@+id/tvSearchEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="email@example.com"
+                            android:textColor="#888888"
+                            android:textSize="13sp"/>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnAddFriend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:backgroundTint="#FF2D55"
+                        android:text="Add"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textAllCaps="false"
+                        android:paddingHorizontal="15dp"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- INCOMING REQUESTS SECTION -->
+            <TextView
+                android:id="@+id/headerRequests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Incoming Requests"
+                android:textColor="#FF2D55"
+                android:textSize="18sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="4dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRequests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                tools:listitem="@layout/item_notification"
+                tools:itemCount="2"/>
+
+            <TextView
+                android:id="@+id/tvNoRequests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No pending requests"
+                android:textColor="#555555"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"/>
+
+            <!-- MY FRIENDS SECTION -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Friends"
+                android:textColor="#FF2D55"
+                android:textSize="18sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginTop="30dp"
+                android:layout_marginStart="4dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="40dp"
+                tools:listitem="@layout/item_country"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

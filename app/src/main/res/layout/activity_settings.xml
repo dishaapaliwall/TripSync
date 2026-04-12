@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- Top Wave (vector3 like Help & Support) -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:importantForAccessibility="no"/>
+
+    <!-- Header -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_back"
+        app:tint="@color/black"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="5dp"
+        android:contentDescription="@string/back"/>
+
+    <TextView
+        android:id="@+id/settingsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textColor="@color/black"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/dm_sans_bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:elevation="5dp"/>
+
+    <!-- Settings Options - Now with 15dp margin below the wave -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/waveTop"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Personal Information Button -->
+            <LinearLayout
+                android:id="@+id/btnPersonalInfo"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@drawable/option_bg"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="#FFFFFF"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/personal_info_title"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:layout_marginStart="14dp" />
+            </LinearLayout>
+
+            <!-- Security and Privacy Button -->
+            <LinearLayout
+                android:id="@+id/btnSecurityPrivacy"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@drawable/option_bg"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_key_chain"
+                    app:tint="#FFFFFF"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Security and Privacy"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:layout_marginStart="14dp" />
+            </LinearLayout>
+
+            <!-- Country/Region Button -->
+            <LinearLayout
+                android:id="@+id/btnCountryRegion"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@drawable/option_bg"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_location"
+                    app:tint="#FFFFFF"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Country / Region"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:layout_marginStart="14dp" />
+            </LinearLayout>
+
+            <!-- Switch or Add Account Button -->
+            <LinearLayout
+                android:id="@+id/btnAccountManagement"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@drawable/option_bg"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_friends"
+                    app:tint="#FFFFFF"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Switch / Add Account"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:layout_marginStart="14dp" />
+            </LinearLayout>
+
+            <!-- Logout Button -->
+            <LinearLayout
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@drawable/option_bg"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_back"
+                    app:tint="#1B5E20"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Logout"
+                    android:textColor="#1B5E20"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:layout_marginStart="14dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

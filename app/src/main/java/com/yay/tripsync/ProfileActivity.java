@@ -3,7 +3,6 @@ package com.yay.tripsync;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,12 +42,23 @@ public class ProfileActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
+        // 🔥 OPTION BUTTONS
+        findViewById(R.id.btnSettings).setOnClickListener(v -> 
+                startActivity(new Intent(this, SettingsActivity.class)));
+        
+        findViewById(R.id.btnFriends).setOnClickListener(v -> 
+                startActivity(new Intent(this, FriendsActivity.class)));
+        
+        findViewById(R.id.btnHelp).setOnClickListener(v -> 
+                startActivity(new Intent(this, HelpSupportActivity.class)));
+
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             setupUserProfile(user);
-            fetchTripStats(user.getUid());
+            fetchTripStats(user);
         }
 
+        // 🔥 BOTTOM NAVIGATION
         findViewById(R.id.navHome).setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, TripActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -56,11 +66,15 @@ public class ProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        findViewById(R.id.navTrips).setOnClickListener(v ->
-                Toast.makeText(this, "Past Trips coming soon!", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.navTrips).setOnClickListener(v -> {
+            startActivity(new Intent(ProfileActivity.this, PastTripsActivity.class));
+            finish();
+        });
 
-        findViewById(R.id.navNotif).setOnClickListener(v ->
-                Toast.makeText(this, "Notifications screen coming soon!", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.navNotif).setOnClickListener(v -> {
+            startActivity(new Intent(ProfileActivity.this, NotificationsActivity.class));
+            finish();
+        });
 
         findViewById(R.id.navProfile).setOnClickListener(v -> {});
     }
@@ -92,11 +106,14 @@ public class ProfileActivity extends AppCompatActivity {
         profileImage.setImageResource(avatars[avatarIndex]);
     }
 
-    private void fetchTripStats(String userId) {
+    private void fetchTripStats(FirebaseUser user) {
+        String userId = user.getUid();
+        String userEmail = user.getEmail() != null ? user.getEmail().toLowerCase().trim() : "";
+
         db.collection("trips")
                 .where(Filter.or(
                         Filter.equalTo("userId", userId),
-                        Filter.arrayContains("members", userId)
+                        Filter.arrayContains("participants", userEmail)
                 ))
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -112,6 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
                             String status = doc.getString("status");
                             if (status != null) {
                                 String cleanStatus = status.trim();
+                                // 🔥 Strictly counting only "Upcoming" trips now
                                 if (cleanStatus.equalsIgnoreCase("Upcoming")) {
                                     upcoming++;
                                 } else if (cleanStatus.equalsIgnoreCase("Completed")) {
