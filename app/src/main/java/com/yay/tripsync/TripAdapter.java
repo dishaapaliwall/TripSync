@@ -1,6 +1,7 @@
 package com.yay.tripsync;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
@@ -79,6 +80,21 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         if (trip.getImageUrl() != null && !trip.getImageUrl().isEmpty()) {
             Glide.with(context).load(trip.getImageUrl()).into(holder.tripImage);
         }
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), TripDetailActivity.class);
+
+            intent.putExtra("name", trip.getName());
+            intent.putExtra("location", trip.getLocation());
+            intent.putExtra("startDate", trip.getStartDate());
+            intent.putExtra("endDate", trip.getEndDate());
+
+
+            intent.putExtra("imageRes", tripBackgrounds[imageIndex]);
+
+            intent.putExtra("imageUrl", trip.getImageUrl());
+
+            v.getContext().startActivity(intent);
+        });
     }
 
     private void updateStatusBadge(TextView statusTextView, String startDateStr, String endDateStr) {

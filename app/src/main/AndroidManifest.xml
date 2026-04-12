@@ -11,55 +11,49 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TripSync">
-
+        <activity
+            android:name=".TripDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".join_trip"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".NewTripActivity"
             android:exported="false"
             android:theme="@style/Theme.TripSync"
-            android:windowSoftInputMode="adjustPan" />
-
-        <!-- Splash Activity is the Entry Point -->
+            android:windowSoftInputMode="adjustPan" /> <!-- Splash Activity is the Entry Point -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Main Screen -->
+        </activity> <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
-
-        <!-- Signup Screen -->
+            android:windowSoftInputMode="adjustPan" /> <!-- Signup Screen -->
         <activity
             android:name=".SignupActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
-
-        <!-- Success Screen -->
+            android:windowSoftInputMode="adjustPan" /> <!-- Success Screen -->
         <activity
             android:name=".SuccessActivity"
-            android:exported="false" />
-
-        <!-- Trip Details Screen -->
+            android:exported="false" /> <!-- Trip Details Screen -->
         <activity
             android:name=".TripActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan" /> <!-- Temporary Chat Activity -->
+        <activity
+            android:name=".ChatActivityTemp"
+            android:exported="true" />
     </application>
 
 </manifest>
