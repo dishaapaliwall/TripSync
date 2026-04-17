@@ -80,30 +80,32 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setupUserProfile(FirebaseUser user) {
-        String name = user.getDisplayName();
-        String email = user.getEmail();
+        txtEmail.setText(user.getEmail());
 
-        if (name != null && !name.isEmpty()) {
-            txtName.setText(capitalize(name));
-        } else if (email != null) {
-            txtName.setText(capitalize(email.split("@")[0]));
-        }
+        // 🔥 Real-time listener for current user's profile to keep name and avatar consistent
+        db.collection("users").document(user.getUid()).addSnapshotListener((doc, error) -> {
+            if (error != null || doc == null || !doc.exists()) {
+                String name = user.getDisplayName();
+                if (name == null || name.isEmpty()) name = user.getEmail().split("@")[0];
+                txtName.setText(capitalize(name));
+                return;
+            }
 
-        if (email != null) {
-            txtEmail.setText(email);
-        }
+            String fullName = doc.getString("name");
+            if (fullName == null || fullName.isEmpty()) fullName = user.getDisplayName();
+            if (fullName == null || fullName.isEmpty()) fullName = user.getEmail().split("@")[0];
+            
+            txtName.setText(capitalize(fullName));
 
-        int[] avatars = {
-                R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha,
-                R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx
-        };
-
-        long seed = user.getUid().hashCode();
-        Random random = new Random(seed);
-        random.nextInt();
-        random.nextInt();
-        int avatarIndex = random.nextInt(avatars.length);
-        profileImage.setImageResource(avatars[avatarIndex]);
+            // 🔥 CONSISTENT AVATAR LOGIC (Same as TripActivity and MembersFragment)
+            int[] avatars = {
+                    R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha,
+                    R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx
+            };
+            String uid = user.getUid();
+            int avatarIndex = Math.abs(uid.hashCode()) % avatars.length;
+            profileImage.setImageResource(avatars[avatarIndex]);
+        });
     }
 
     private void fetchTripStats(FirebaseUser user) {
@@ -129,7 +131,6 @@ public class ProfileActivity extends AppCompatActivity {
                             String status = doc.getString("status");
                             if (status != null) {
                                 String cleanStatus = status.trim();
-                                // 🔥 Strictly counting only "Upcoming" trips now
                                 if (cleanStatus.equalsIgnoreCase("Upcoming")) {
                                     upcoming++;
                                 } else if (cleanStatus.equalsIgnoreCase("Completed")) {
@@ -141,8 +142,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                     txtUpcomingCount.setText(String.valueOf(upcoming));
                     txtCompletedCount.setText(String.valueOf(completed));
-                    
-                    Log.d("ProfileStats", "Updated counts - Upcoming: " + upcoming + ", Completed: " + completed);
                 });
     }
 

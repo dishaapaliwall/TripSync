@@ -63,6 +63,10 @@ public class NewTripActivity extends AppCompatActivity {
                     String date = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
                     editText.setText(date);
                 }, year, month, day);
+        
+        // 🔥 Optional: Set minimum date to today so user can't even select past dates in the picker
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        
         datePickerDialog.show();
     }
 
@@ -106,6 +110,18 @@ public class NewTripActivity extends AppCompatActivity {
             cal.set(Calendar.MILLISECOND, 0);
             Date todayMidnight = cal.getTime();
 
+            // 🔥 Loophole Fix: Check if start date is in the past
+            if (startDate != null && startDate.before(todayMidnight)) {
+                Toast.makeText(this, "Start date cannot be in the past!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Also ensure end date is not before start date
+            if (endDate != null && startDate != null && endDate.before(startDate)) {
+                Toast.makeText(this, "End date cannot be before start date!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (endDate != null && endDate.before(todayMidnight)) {
                 calculatedStatus = "Completed";
             } else if (startDate != null && !startDate.after(todayMidnight)) {
@@ -115,6 +131,8 @@ public class NewTripActivity extends AppCompatActivity {
             }
         } catch (ParseException e) {
             Log.e("NewTrip", "Date parse error.", e);
+            Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         final String status = calculatedStatus;
@@ -153,7 +171,7 @@ public class NewTripActivity extends AppCompatActivity {
         trip.put("imageUrl", "");
         trip.put("tripCode", tripCode);
         trip.put("invitedEmails", invitedEmails); // 🔥 Save list of invited emails
-        trip.put("participants", Arrays.asList(user.getEmail())); // Creator is first participant
+        trip.put("participants", Arrays.asList(user.getEmail().toLowerCase().trim())); // Creator is first participant
 
         db.collection("trips")
                 .add(trip)

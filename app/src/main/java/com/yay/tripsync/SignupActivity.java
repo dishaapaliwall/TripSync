@@ -10,8 +10,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -19,13 +21,16 @@ import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
 
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         EditText name = findViewById(R.id.signupName);
         EditText email = findViewById(R.id.signupEmail);
@@ -52,48 +57,75 @@ public class SignupActivity extends AppCompatActivity {
                 return;
             }
 
-            auth.createUserWithEmailAndPassword(userEmail, userPass)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = auth.getCurrentUser();
-                            if(user != null){
-                                // 1. Update Auth Profile
-                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                        .setDisplayName(userName)
-                                        .build();
-
-                                user.updateProfile(profileUpdates).addOnCompleteListener(profileTask -> {
-                                    
-                                    // 2. 🔥 SAVE TO FIRESTORE (Initialize User Document)
-                                    Map<String, Object> userData = new HashMap<>();
-                                    userData.put("name", userName);
-                                    userData.put("email", userEmail);
-                                    userData.put("uid", user.getUid());
-                                    userData.put("location", "");
-                                    userData.put("phone", "");
-                                    userData.put("gender", "");
-                                    userData.put("dob", "");
-
-                                    db.collection("users").document(user.getUid())
-                                            .set(userData)
-                                            .addOnSuccessListener(aVoid -> {
-                                                // 3. Send Verification Email
-                                                user.sendEmailVerification().addOnCompleteListener(emailTask -> {
-                                                    Toast.makeText(this, "Account created! Verification email sent.", Toast.LENGTH_LONG).show();
-                                                    Intent intent = new Intent(SignupActivity.this, SuccessActivity.class);
-                                                    intent.putExtra("type", "signup");
-                                                    startActivity(intent);
-                                                    finish();
-                                                });
-                                            });
-                                });
+            // Check if account is scheduled for deletion first
+            db.collection("users").whereEqualTo("email", userEmail).get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                            Boolean isDeleted = doc.getBoolean("isDeleted");
+                            if (isDeleted != null && isDeleted) {
+                                Toast.makeText(this, "This account is scheduled for deletion. Please login to recover it.", Toast.LENGTH_LONG).show();
+                                return;
                             }
-                        } else {
-                            Toast.makeText(this, "Signup Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
+                        
+                        // Proceed with creation
+                        createNewAccount(userName, userEmail, userPass);
+                    })
+                    .addOnFailureListener(e -> {
+                        // If check fails, just try to create (standard behavior)
+                        createNewAccount(userName, userEmail, userPass);
                     });
         });
 
         findViewById(R.id.goToLogin).setOnClickListener(v -> finish());
+    }
+
+    private void createNewAccount(String userName, String userEmail, String userPass) {
+        auth.createUserWithEmailAndPassword(userEmail, userPass)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        if(user != null){
+                            // 1. Update Auth Profile
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(userName)
+                                    .build();
+
+                            user.updateProfile(profileUpdates).addOnCompleteListener(profileTask -> {
+                                
+                                // 2. 🔥 SAVE TO FIRESTORE (Initialize User Document)
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("name", userName);
+                                userData.put("email", userEmail);
+                                userData.put("uid", user.getUid());
+                                userData.put("location", "");
+                                userData.put("phone", "");
+                                userData.put("gender", "");
+                                userData.put("dob", "");
+                                userData.put("isDeleted", false); // Ensure it's not deleted
+
+                                db.collection("users").document(user.getUid())
+                                        .set(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // 3. Send Verification Email
+                                            user.sendEmailVerification().addOnCompleteListener(emailTask -> {
+                                                Toast.makeText(this, "Account created! Verification email sent.", Toast.LENGTH_LONG).show();
+                                                Intent intent = new Intent(SignupActivity.this, SuccessActivity.class);
+                                                intent.putExtra("type", "signup");
+                                                startActivity(intent);
+                                                finish();
+                                            });
+                                        });
+                            });
+                        }
+                    } else {
+                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                            Toast.makeText(this, "Account already exists. Please log in.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Signup Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }
