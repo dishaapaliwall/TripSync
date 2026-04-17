@@ -1,9 +1,11 @@
 package com.yay.tripsync;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,33 +20,34 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class PhotosFragment extends Fragment {
 
     private RecyclerView rvPhotos;
     private View tvEmpty, fabAdd;
     private FirebaseFirestore db;
-    private FirebaseStorage storage;
+    private FirebaseAuth auth;
     private String tripCode;
     private PhotoAdapter adapter;
-    private List<String> photoUrls = new ArrayList<>();
+    private List<Map<String, String>> mediaList = new ArrayList<>();
 
-    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> pickMediaLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri imageUri = result.getData().getData();
-                    if (imageUri != null) {
-                        uploadPhoto(imageUri);
+                    Uri mediaUri = result.getData().getData();
+                    if (mediaUri != null) {
+                        uploadToCloudinary(mediaUri);
                     }
                 }
             }
@@ -55,7 +58,7 @@ public class PhotosFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_photos, container, false);
 
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance("gs://tripsync-f3f49.firebasestorage.app");
+        auth = FirebaseAuth.getInstance();
         if (getActivity() != null) {
             tripCode = getActivity().getIntent().getStringExtra("tripId");
         }
@@ -70,18 +73,19 @@ public class PhotosFragment extends Fragment {
 
         fabAdd.setOnClickListener(view -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            pickImageLauncher.launch(intent);
+            intent.setType("image/* video/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/jpeg", "image/png", "image/jpg", "video/*"});
+            pickMediaLauncher.launch(intent);
         });
 
         if (tripCode != null) {
-            loadPhotos();
+            loadMedia();
         }
 
         return v;
     }
 
-    private void loadPhotos() {
+    private void loadMedia() {
         db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (!queryDocumentSnapshots.isEmpty()) {
                 String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
@@ -89,35 +93,65 @@ public class PhotosFragment extends Fragment {
                         .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                         .addSnapshotListener((value, error) -> {
                             if (error != null || value == null) return;
-                            photoUrls.clear();
+                            mediaList.clear();
                             for (com.google.firebase.firestore.QueryDocumentSnapshot doc : value) {
-                                photoUrls.add(doc.getString("url"));
+                                Map<String, String> media = new HashMap<>();
+                                media.put("id", doc.getId());
+                                media.put("url", doc.getString("url"));
+                                media.put("type", doc.getString("type"));
+                                media.put("userId", doc.getString("userId"));
+                                mediaList.add(media);
                             }
                             adapter.notifyDataSetChanged();
-                            tvEmpty.setVisibility(photoUrls.isEmpty() ? View.VISIBLE : View.GONE);
+                            tvEmpty.setVisibility(mediaList.isEmpty() ? View.VISIBLE : View.GONE);
                         });
             }
         });
     }
 
-    private void uploadPhoto(Uri uri) {
+    private void uploadToCloudinary(Uri uri) {
         Toast.makeText(getContext(), "Uploading...", Toast.LENGTH_SHORT).show();
-        StorageReference ref = storage.getReference().child("trip_photos/" + tripCode + "/" + UUID.randomUUID().toString());
-        ref.putFile(uri).addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-            savePhotoToFirestore(downloadUri.toString());
-        })).addOnFailureListener(e -> {
-            Toast.makeText(getContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        });
+        MediaManager.get().upload(uri)
+                .unsigned("gda3ahqj")
+                .option("resource_type", "auto")
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {}
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        saveMediaToFirestore((String) resultData.get("secure_url"), (String) resultData.get("resource_type"));
+                    }
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(getContext(), "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show();
+                    }
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {}
+                }).dispatch();
     }
 
-    private void savePhotoToFirestore(String url) {
+    private void saveMediaToFirestore(String url, String type) {
         db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (!queryDocumentSnapshots.isEmpty()) {
                 String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
-                Map<String, Object> photoData = new HashMap<>();
-                photoData.put("url", url);
-                photoData.put("timestamp", System.currentTimeMillis());
-                db.collection("trips").document(docId).collection("photos").add(photoData);
+                Map<String, Object> mediaData = new HashMap<>();
+                mediaData.put("url", url);
+                mediaData.put("type", type);
+                mediaData.put("userId", auth.getUid());
+                mediaData.put("timestamp", System.currentTimeMillis());
+                db.collection("trips").document(docId).collection("photos").add(mediaData);
+            }
+        });
+    }
+
+    private void deleteMedia(String mediaId) {
+        db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                String tripDocId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                db.collection("trips").document(tripDocId).collection("photos").document(mediaId).delete()
+                        .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Media deleted", Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -132,11 +166,45 @@ public class PhotosFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Glide.with(getContext()).load(photoUrls.get(position)).into(holder.ivPhoto);
+            Map<String, String> media = mediaList.get(position);
+            String url = media.get("url");
+            String type = media.get("type");
+            String uploaderId = media.get("userId");
+
+            if ("video".equals(type)) {
+                String thumbnailUrl = url.substring(0, url.lastIndexOf(".")) + ".jpg";
+                Glide.with(getContext()).load(thumbnailUrl).placeholder(R.drawable.ic_play_circle).into(holder.ivPhoto);
+            } else {
+                Glide.with(getContext()).load(url).into(holder.ivPhoto);
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                intent.setDataAndType(Uri.parse(url), "video".equals(type) ? "video/*" : "image/*");
+                startActivity(intent);
+            });
+
+            // Long click to delete
+            holder.itemView.setOnLongClickListener(v -> {
+                String currentUserId = auth.getUid();
+                boolean isUploader = currentUserId != null && currentUserId.equals(uploaderId);
+                
+                if (isUploader) {
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Delete Media")
+                            .setMessage("Do you want to delete this permanently?")
+                            .setPositiveButton("Delete", (d, w) -> deleteMedia(media.get("id")))
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                } else {
+                    Toast.makeText(getContext(), "You can only delete your own uploads", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            });
         }
 
         @Override
-        public int getItemCount() { return photoUrls.size(); }
+        public int getItemCount() { return mediaList.size(); }
 
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivPhoto;

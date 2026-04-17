@@ -118,13 +118,15 @@ public class TripDetailActivity extends AppCompatActivity {
                     double budget = doc.getDouble("budget") != null ? doc.getDouble("budget") : 0.0;
                     double spent = doc.getDouble("spent") != null ? doc.getDouble("spent") : 0.0;
                     List<String> participants = (List<String>) doc.get("participants");
-                    int memberCount = participants != null ? participants.size() : 1;
+                    
+                    // Logic: Total = Host (1) + All Participants
+                    int totalMembers = 1 + (participants != null ? participants.size() : 0);
 
                     // Update UI
                     tvTotalBudget.setText("Total: ₹ " + (int)budget);
                     tvSpent.setText("Spent: ₹ " + (int)spent);
                     tvRemaining.setText("Remaining: ₹ " + (int)(budget - spent));
-                    tripMembers.setText(memberCount + " Members");
+                    tripMembers.setText(totalMembers + (totalMembers == 1 ? " Member" : " Members"));
 
                     if (budget > 0) {
                         int progress = (int) ((spent / budget) * 100);
