@@ -4,15 +4,11 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Building -->
+    <!-- Building with Holes for Windows -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M3.8,10 L20,10 L20,22 L3.8,22 Z" />
-
-    <!-- Windows -->
-    <path
-        android:fillColor="#000000"
-        android:pathData="
+        android:fillType="evenOdd"
+        android:pathData="M3.8,10 L20,10 L20,22 L3.8,22 Z
             M7,11.8 h2 v2 h-2 z
             M11.4,11.8 h2 v2 h-2 z
             M10.4,11.8 h2 v2 h-2 z

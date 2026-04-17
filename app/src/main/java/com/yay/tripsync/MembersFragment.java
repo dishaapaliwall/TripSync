@@ -86,7 +86,7 @@ public class MembersFragment extends Fragment {
             ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Trip Code", tripCode);
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(getContext(), "Code Copied!", Toast.LENGTH_SHORT).show();
+            // Toast removed to avoid double notification on newer Android versions
         });
 
         v.findViewById(R.id.btnUploadFlight).setOnClickListener(view -> checkExistingAndOpenPicker("Flight Tickets"));
