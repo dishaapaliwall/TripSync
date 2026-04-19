@@ -13,7 +13,8 @@
         android:theme="@style/Theme.TripSync">
         <activity
             android:name=".TripDetailActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
