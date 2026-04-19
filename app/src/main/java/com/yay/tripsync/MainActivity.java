@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null && user.isEmailVerified()) {
                                 saveAccountLocally(email, password);
-                                navigateToSuccess("login");
+                                checkAccountStatus(user, "login");
                             } else {
                                 Toast.makeText(MainActivity.this, "Please verify your email first", Toast.LENGTH_LONG).show();
                             }
@@ -125,6 +125,53 @@ public class MainActivity extends AppCompatActivity {
 
         forgotPassword.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ForgotPasswordActivity.class)));
         signUpText.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SignupActivity.class)));
+    }
+
+    private void checkAccountStatus(FirebaseUser user, String type) {
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean isDeleted = documentSnapshot.getBoolean("isDeleted");
+                        if (isDeleted != null && isDeleted) {
+                            Long permanentDeletionAt = documentSnapshot.getLong("permanentDeletionAt");
+                            
+                            if (permanentDeletionAt != null && System.currentTimeMillis() > permanentDeletionAt) {
+                                // 🔥 AFTER 30 DAYS: Fresh Start
+                                Map<String, Object> freshData = new HashMap<>();
+                                freshData.put("isDeleted", false);
+                                freshData.put("deletionScheduledAt", null);
+                                freshData.put("permanentDeletionAt", null);
+                                freshData.put("location", "");
+                                freshData.put("phone", "");
+                                freshData.put("gender", "");
+                                freshData.put("dob", "");
+                                // Optionally clear name if you want a total reset
+                                // freshData.put("name", user.getDisplayName()); 
+
+                                db.collection("users").document(user.getUid()).update(freshData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "Your old account expired. Welcome to your fresh start!", Toast.LENGTH_LONG).show();
+                                            navigateToSuccess(type);
+                                        });
+                            } else {
+                                // 🔥 WITHIN 30 DAYS: Recover Data
+                                Map<String, Object> updates = new HashMap<>();
+                                updates.put("isDeleted", false);
+                                updates.put("deletionScheduledAt", null);
+                                updates.put("permanentDeletionAt", null);
+
+                                db.collection("users").document(user.getUid()).update(updates)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "Welcome back! Your account has been recovered.", Toast.LENGTH_SHORT).show();
+                                            navigateToSuccess(type);
+                                        });
+                            }
+                            return;
+                        }
+                    }
+                    navigateToSuccess(type);
+                })
+                .addOnFailureListener(e -> navigateToSuccess(type));
     }
 
     private void performAutoLogin(String email, String password) {
@@ -149,7 +196,12 @@ public class MainActivity extends AppCompatActivity {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        navigateToSuccess("login");
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user != null) {
+                            checkAccountStatus(user, "login");
+                        } else {
+                            navigateToSuccess("login");
+                        }
                     } else {
                         Toast.makeText(this, "Session expired, please login manually.", Toast.LENGTH_SHORT).show();
                         emailEditText.setText(email);
@@ -196,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                                     .set(userData, SetOptions.merge())
                                     .addOnSuccessListener(aVoid -> {
                                         saveAccountLocally(user.getEmail(), "google_auth");
-                                        navigateToSuccess("google");
+                                        checkAccountStatus(user, "google");
                                     });
                         }
                     } else {

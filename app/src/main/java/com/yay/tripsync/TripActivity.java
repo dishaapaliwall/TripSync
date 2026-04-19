@@ -58,40 +58,56 @@ public class TripActivity extends AppCompatActivity {
 
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
+            repairUserData(user); // 🔥 Ensure name and email are in Firestore
             setupUserProfile(user);
-            repairUserEmail(user); // 🔥 Fix missing email in Firestore
         }
 
         setupClickListeners();
         loadTrips();
     }
 
-    private void repairUserEmail(FirebaseUser user) {
-        // Ensure email is always present in Firestore for search to work
+    private void repairUserData(FirebaseUser user) {
+        // Ensure email and name are always present in Firestore
         Map<String, Object> data = new HashMap<>();
         data.put("email", user.getEmail().toLowerCase().trim());
-        db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
+        
+        // If name is missing, use displayName or email part
+        db.collection("users").document(user.getUid()).get().addOnSuccessListener(doc -> {
+            if (!doc.contains("name") || doc.getString("name") == null || doc.getString("name").isEmpty()) {
+                String fallbackName = user.getDisplayName();
+                if (fallbackName == null || fallbackName.isEmpty()) {
+                    fallbackName = user.getEmail().split("@")[0];
+                }
+                data.put("name", fallbackName);
+                db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
+            } else {
+                db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
+            }
+        });
     }
 
     private void setupUserProfile(FirebaseUser user) {
-        int[] avatars = {
-                R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha,
-                R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx
-        };
+        // Real-time listener for current user's profile
+        db.collection("users").document(user.getUid()).addSnapshotListener((doc, error) -> {
+            if (error != null || doc == null || !doc.exists()) return;
 
-        long seed = user.getUid().hashCode();
-        Random random = new Random(seed);
-        random.nextInt(); random.nextInt();
-        int avatarIndex = random.nextInt(avatars.length);
-        profileImage.setImageResource(avatars[avatarIndex]);
+            String fullName = doc.getString("name");
+            if (fullName == null || fullName.isEmpty()) {
+                fullName = user.getDisplayName();
+                if (fullName == null || fullName.isEmpty()) fullName = user.getEmail().split("@")[0];
+            }
+            
+            welcomeUser.setText("Welcome " + capitalize(fullName) + "!");
 
-        String displayName = user.getDisplayName();
-        if (displayName != null && !displayName.isEmpty()) {
-            welcomeUser.setText("Welcome " + capitalize(displayName) + "!");
-        } else if (user.getEmail() != null) {
-            String name = user.getEmail().split("@")[0];
-            welcomeUser.setText("Welcome " + capitalize(name) + "!");
-        }
+            // 🔥 Use EXACT SAME DETERMINISTIC LOGIC for Avatar as Members section
+            int[] avatars = {
+                    R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha,
+                    R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx
+            };
+            String uid = user.getUid();
+            int avatarIndex = Math.abs(uid.hashCode()) % avatars.length;
+            profileImage.setImageResource(avatars[avatarIndex]);
+        });
     }
 
     private void setupClickListeners() {

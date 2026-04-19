@@ -63,6 +63,13 @@ public class join_trip extends AppCompatActivity {
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             String tripId = doc.getId();
                             
+                            // 🔥 Check if trip is already completed
+                            String status = doc.getString("status");
+                            if ("Completed".equalsIgnoreCase(status)) {
+                                Toast.makeText(this, "This trip has already ended. You cannot join now!", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            
                             // Check if user is already the owner
                             String ownerId = doc.getString("userId");
                             if (user.getUid().equals(ownerId)) {

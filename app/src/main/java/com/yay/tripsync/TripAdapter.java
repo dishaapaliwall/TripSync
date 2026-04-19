@@ -55,8 +55,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         Trip trip = trips.get(position);
 
         holder.tripName.setText(trip.getName());
-        holder.tripLocation.setText(trip.getLocation()); // Emojis removed
-        holder.tripDate.setText(trip.getStartDate() + " – " + trip.getEndDate()); // Emojis removed
+        holder.tripLocation.setText(trip.getLocation());
+        holder.tripDate.setText(trip.getStartDate() + " – " + trip.getEndDate());
         
         if (trip.getTripCode() != null && !trip.getTripCode().isEmpty()) {
             holder.tripCode.setText(trip.getTripCode());
@@ -80,17 +80,20 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         if (trip.getImageUrl() != null && !trip.getImageUrl().isEmpty()) {
             Glide.with(context).load(trip.getImageUrl()).into(holder.tripImage);
         }
+
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), TripDetailActivity.class);
 
+            intent.putExtra("tripId", trip.getTripCode()); // To fetch members if needed
             intent.putExtra("name", trip.getName());
             intent.putExtra("location", trip.getLocation());
             intent.putExtra("startDate", trip.getStartDate());
             intent.putExtra("endDate", trip.getEndDate());
-
-
+            intent.putExtra("budget", trip.getBudget());
+            intent.putExtra("spent", trip.getSpent());
+            
+            // Pass the exact image being shown
             intent.putExtra("imageRes", tripBackgrounds[imageIndex]);
-
             intent.putExtra("imageUrl", trip.getImageUrl());
 
             v.getContext().startActivity(intent);
