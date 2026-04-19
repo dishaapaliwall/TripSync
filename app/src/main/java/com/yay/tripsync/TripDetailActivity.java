@@ -90,7 +90,7 @@ public class TripDetailActivity extends AppCompatActivity {
         // Setup Tabs
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
-        TripPagerAdapter adapter = new TripPagerAdapter(this);
+        TripPagerAdapter adapter = new TripPagerAdapter(this, tripCode);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager,
