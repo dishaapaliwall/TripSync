@@ -3,6 +3,7 @@ package com.yay.tripsync;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -105,6 +106,22 @@ public class TripDetailActivity extends AppCompatActivity {
                     }
                 }
         ).attach();
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+
+            if (tab != null) {
+                TextView tv = new TextView(this);
+                tv.setText(tab.getText());
+                tv.setTextColor(Color.WHITE);
+                tv.setTextSize(13);
+                tv.setSingleLine(true);
+                tv.setMaxLines(1);
+                tv.setEllipsize(TextUtils.TruncateAt.END);
+                tv.setPadding(18,0,18,0);
+
+                tab.setCustomView(tv);
+            }
+        }
     }
 
     private void fetchTripData(String tripCode) {
