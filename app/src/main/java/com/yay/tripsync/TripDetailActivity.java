@@ -103,6 +103,7 @@ public class TripDetailActivity extends AppCompatActivity {
                         case 3: tab.setText("Members"); break;
                         case 4: tab.setText("Photos"); break;
                         case 5: tab.setText("Chat"); break;
+                        case 6: tab.setText("Track"); break;
                     }
                 }
         ).attach();
