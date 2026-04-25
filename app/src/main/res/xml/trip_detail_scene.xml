@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetStart="@id/start"
+        motion:constraintSetEnd="@id/end"
+        motion:duration="400">
+
+        <OnSwipe
+            motion:touchAnchorId="@id/tabLayout"
+            motion:touchAnchorSide="top"
+            motion:dragDirection="dragUp"
+            motion:onTouchUp="autoComplete" />
+    </Transition>
+
+    <!-- NORMAL STATE -->
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="1.0"
+            motion:layout_constraintTop_toTopOf="parent" />
+
+        <Constraint
+            android:id="@id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            motion:layout_constraintTop_toBottomOf="@id/headerLayout" />
+
+        <Constraint
+            android:id="@id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            motion:layout_constraintTop_toBottomOf="@id/tabLayout"
+            motion:layout_constraintBottom_toBottomOf="parent" />
+    </ConstraintSet>
+
+    <!-- FULLSCREEN STATE -->
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.0"
+            motion:layout_constraintBottom_toTopOf="parent" />
+
+        <Constraint
+            android:id="@id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            motion:layout_constraintTop_toTopOf="parent" />
+
+        <Constraint
+            android:id="@id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            motion:layout_constraintTop_toBottomOf="@id/tabLayout"
+            motion:layout_constraintBottom_toBottomOf="parent" />
+    </ConstraintSet>
+
+</MotionScene>
