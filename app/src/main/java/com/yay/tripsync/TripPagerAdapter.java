@@ -26,12 +26,13 @@ public class TripPagerAdapter extends FragmentStateAdapter {
             case 3: return new MembersFragment();
             case 4: return new PhotosFragment();
             case 5: return ChatFragment.newInstance(tripId);
+            case 6: return TrackFragment.newInstance(tripId);
             default: return new ItineraryFragment();
         }
     }
 
     @Override
     public int getItemCount() {
-        return 6;
+        return 7;
     }
 }

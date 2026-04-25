@@ -17,4 +17,11 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:fontFamily">@font/dm_sans_medium</item>
     </style>
+
+    <style name="Theme.TripSync.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorSurface">#121212</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorPrimary">#78182C</item>
+    </style>
 </resources>
