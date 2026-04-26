@@ -1,54 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    REPLACE: app/src/main/res/layout/item_expense.xml
+    Matches Figma exactly:
+    "Dinner at Fisherman's Wharf — ₹1,400"
+    "Paid by Arjun"
+    Optional: receipt thumbnail on right, delete icon
+-->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="10dp"
     app:cardBackgroundColor="#2A0A0A"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <!-- Receipt thumbnail (shown only when a receipt image is attached) -->
+        <ImageView
+            android:id="@+id/imgReceipt"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/card_bg"
+            android:contentDescription="Receipt"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
 
+        <!-- Delete button -->
+        <ImageView
+            android:id="@+id/btnDelete"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/ic_close"
+            app:tint="#AA4466"
+            android:contentDescription="Delete expense"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <!-- Left content block -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/btnDelete"
+            android:orientation="vertical">
+
+            <!-- Title — Amount on same row -->
             <TextView
                 android:id="@+id/tvExpenseTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_bold"
-                android:text="Dinner at Fisherman's Wharf"
+                android:text="Dinner at Fisherman's Wharf — ₹1,400"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/tvAmount"/>
+                android:textSize="15sp" />
 
+            <!-- Paid by -->
             <TextView
-                android:id="@+id/tvAmount"
+                android:id="@+id/tvPaidBy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_bold"
-                android:text="₹ 1,400"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Paid by Arjun"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+
+            <!-- Receipt URL label (small, shown when a receipt exists) -->
+            <TextView
+                android:id="@+id/tvReceiptTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/badge_bg"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="Receipt attached"
+                app:drawableStartCompat="@drawable/ic_receipt"
+                android:drawablePadding="4dp"
+                app:drawableTint="#FFFFFF"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_alignParentEnd="true"/>
-        </RelativeLayout>
+                android:textSize="10sp"
+                android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvPaidBy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fontFamily="@font/dm_sans_medium"
-            android:text="Paid by Arjun"
-            android:textColor="#888888"
-            android:textSize="13sp" />
+        </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>
