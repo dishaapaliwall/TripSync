@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.content.pm.PackageManager;
@@ -12,6 +14,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +62,7 @@ public class TrackFragment extends Fragment {
     private FirebaseAuth auth;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
-    private com.google.firebase.firestore.ListenerRegistration locationListener;
+    private com.google.firebase.firestore.ListenerRegistration locationListener, selfLocationListener, tripListener;
     private MemberDistanceAdapter adapter;
     private List<Map<String, Object>> memberList = new ArrayList<>();
     private double meetupLat = 0, meetupLng = 0;
@@ -123,7 +126,8 @@ public class TrackFragment extends Fragment {
 
         btnSetDestination.setOnClickListener(v -> showDestinationDialog());
 
-        locationToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        locationToggle.setOnClickListener(v -> {
+            boolean isChecked = locationToggle.isChecked();
             if (isChecked) {
                 checkPermissionAndStartLocation();
             } else {
@@ -132,7 +136,6 @@ public class TrackFragment extends Fragment {
         });
 
         if (tripId != null) {
-            fetchMeetupPoint();
             loadTripAndMembers();
         }
 
@@ -174,6 +177,11 @@ public class TrackFragment extends Fragment {
     }
 
     private void startLocationSharing() {
+        if (actualDocId == null) {
+            // Defer until doc ID is loaded
+            return;
+        }
+        
         tvLocationSubtitle.setText("Sharing On");
         updateSharingStatus(true);
 
@@ -200,23 +208,29 @@ public class TrackFragment extends Fragment {
         updateSharingStatus(false);
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
+            locationCallback = null;
         }
     }
 
     private void updateSharingStatus(boolean isSharing) {
-        if (auth.getCurrentUser() == null || actualDocId == null) return;
+        if (auth.getUid() == null || actualDocId == null) return;
         String uid = auth.getUid();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("sharing", isSharing);
+        updates.put("updatedAt", FieldValue.serverTimestamp());
 
         db.collection("trips").document(actualDocId)
                 .collection("memberLocations").document(uid)
-                .update("sharing", isSharing)
+                .update(updates)
                 .addOnFailureListener(e -> {
-                    // If document doesn't exist, create it (happens on first time)
                     if (isSharing) {
                         Map<String, Object> data = new HashMap<>();
                         data.put("name", auth.getCurrentUser().getDisplayName() != null ? auth.getCurrentUser().getDisplayName() : auth.getCurrentUser().getEmail());
                         data.put("sharing", true);
                         data.put("updatedAt", FieldValue.serverTimestamp());
+                        data.put("lat", 0.0);
+                        data.put("lng", 0.0);
                         db.collection("trips").document(actualDocId)
                                 .collection("memberLocations").document(uid).set(data);
                     }
@@ -224,7 +238,7 @@ public class TrackFragment extends Fragment {
     }
 
     private void updateUserLocation(Location location) {
-        if (auth.getCurrentUser() == null || actualDocId == null) return;
+        if (auth.getUid() == null || actualDocId == null) return;
         String uid = auth.getUid();
 
         Map<String, Object> data = new HashMap<>();
@@ -248,44 +262,59 @@ public class TrackFragment extends Fragment {
         if (locationListener != null) {
             locationListener.remove();
         }
+        if (selfLocationListener != null) {
+            selfLocationListener.remove();
+        }
+        if (tripListener != null) {
+            tripListener.remove();
+        }
     }
 
     private void showDestinationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.Theme_TripSync_Dialog);
-        builder.setTitle("Set Destination");
+        if (getContext() == null) return;
 
-        final EditText input = new EditText(requireContext());
-        input.setHint("Enter place name (e.g. Goa Airport)");
-        input.setTextColor(getResources().getColor(android.R.color.white));
-        input.setHintTextColor(getResources().getColor(android.R.color.darker_gray));
-        input.setPadding(50, 40, 50, 40);
-        builder.setView(input);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_set_destination, null);
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
 
-        builder.setPositiveButton("Set", (dialog, which) -> {
-            String destinationName = input.getText().toString().trim();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        EditText etInput = dialogView.findViewById(R.id.etDestinationName);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnSet = dialogView.findViewById(R.id.btnSet);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnSet.setOnClickListener(v -> {
+            String destinationName = etInput.getText().toString().trim();
             if (!destinationName.isEmpty()) {
                 geocodeAndSave(destinationName);
+                dialog.dismiss();
+            } else {
+                Toast.makeText(getContext(), "Please enter a location name", Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
-        builder.show();
+        dialog.show();
     }
 
     private void geocodeAndSave(String destinationName) {
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
+            // Use 5 results for better accuracy fallback
             List<Address> addresses = geocoder.getFromLocationName(destinationName, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
                 saveMeetupPoint(destinationName, address.getLatitude(), address.getLongitude(), address.getAddressLine(0));
             } else {
-                Toast.makeText(getContext(), "Location not found, setting name only.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Location coordinates not found. Saving name only.", Toast.LENGTH_SHORT).show();
                 saveMeetupPoint(destinationName, 0.0, 0.0, "Address not found");
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Network error. Setting name only.", Toast.LENGTH_SHORT).show();
+            Log.e("TrackFragment", "Geocoding error", e);
+            Toast.makeText(getContext(), "Geocoding failed. Saving name only.", Toast.LENGTH_SHORT).show();
             saveMeetupPoint(destinationName, 0.0, 0.0, "Service unavailable");
         }
     }
@@ -303,42 +332,34 @@ public class TrackFragment extends Fragment {
         db.collection("trips").document(actualDocId)
                 .update("meetupPoint", meetupPoint)
                 .addOnSuccessListener(aVoid -> {
-                    tvMeetupName.setText(name);
-                    Toast.makeText(getContext(), "Destination updated!", Toast.LENGTH_SHORT).show();
-                });
+                    Toast.makeText(getContext(), "Meetup Point Set!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void updateByTripCode(Map<String, Object> meetupPoint, String placeName) {
-        db.collection("trips").whereEqualTo("tripCode", tripId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        queryDocumentSnapshots.getDocuments().get(0).getReference()
-                                .update("meetupPoint", meetupPoint)
-                                .addOnSuccessListener(v -> tvMeetupName.setText(placeName));
+    private void listenToMeetupPoint() {
+        if (actualDocId == null) return;
+        
+        if (tripListener != null) tripListener.remove();
+        tripListener = db.collection("trips").document(actualDocId)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (snapshot != null && snapshot.exists() && snapshot.contains("meetupPoint")) {
+                        Map<String, Object> meetup = (Map<String, Object>) snapshot.get("meetupPoint");
+                        updateMeetupCoords(meetup);
                     }
                 });
     }
 
-    private void fetchMeetupPoint() {
-        if (actualDocId != null) {
-            db.collection("trips").document(actualDocId)
-                    .addSnapshotListener((snapshot, e) -> {
-                        if (snapshot != null && snapshot.exists() && snapshot.contains("meetupPoint")) {
-                            Map<String, Object> meetup = (Map<String, Object>) snapshot.get("meetupPoint");
-                            updateMeetupCoords(meetup);
-                        }
-                    });
-        }
-    }
-
     private void updateMeetupCoords(Map<String, Object> meetup) {
         if (meetup != null) {
-            tvMeetupName.setText((String) meetup.get("name"));
+            String name = (String) meetup.get("name");
+            tvMeetupName.setText(name != null ? name : "No destination selected");
+            
             Object latObj = meetup.get("lat");
             Object lngObj = meetup.get("lng");
             if (latObj instanceof Number) meetupLat = ((Number) latObj).doubleValue();
             if (lngObj instanceof Number) meetupLng = ((Number) lngObj).doubleValue();
+            
             updateAllDistances();
         }
     }
@@ -364,13 +385,11 @@ public class TrackFragment extends Fragment {
     }
 
     private void loadTripAndMembers() {
-        // First, check if tripId is a document ID
         db.collection("trips").document(tripId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult().exists()) {
                 actualDocId = tripId;
                 setupTripListeners();
             } else {
-                // Try as tripCode
                 db.collection("trips").whereEqualTo("tripCode", tripId).get().addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
                         actualDocId = querySnapshot.getDocuments().get(0).getId();
@@ -384,7 +403,8 @@ public class TrackFragment extends Fragment {
     private void setupTripListeners() {
         if (actualDocId == null) return;
         
-        fetchMeetupPoint();
+        listenToMeetupPoint();
+        listenToSelfSharingStatus();
 
         db.collection("trips").document(actualDocId).addSnapshotListener((doc, error) -> {
             if (doc != null && doc.exists()) {
@@ -393,8 +413,30 @@ public class TrackFragment extends Fragment {
         });
     }
 
+    private void listenToSelfSharingStatus() {
+        if (auth.getUid() == null || actualDocId == null) return;
+        if (selfLocationListener != null) selfLocationListener.remove();
+
+        selfLocationListener = db.collection("trips").document(actualDocId)
+                .collection("memberLocations").document(auth.getUid())
+                .addSnapshotListener((snapshot, e) -> {
+                    if (snapshot != null && snapshot.exists()) {
+                        Boolean sharing = snapshot.getBoolean("sharing");
+                        if (sharing != null) {
+                            locationToggle.setChecked(sharing);
+                            tvLocationSubtitle.setText(sharing ? "Sharing On" : "Off");
+                            
+                            if (sharing && locationCallback == null) {
+                                startLocationSharing();
+                            } else if (!sharing && locationCallback != null) {
+                                stopLocationSharing();
+                            }
+                        }
+                    }
+                });
+    }
+
     private void processTripDoc(DocumentSnapshot doc) {
-        actualDocId = doc.getId();
         String tripOwnerId = doc.getString("userId");
         List<String> participants = (List<String>) doc.get("participants");
         if (participants == null) participants = new ArrayList<>();
@@ -403,23 +445,26 @@ public class TrackFragment extends Fragment {
 
     private void fetchUserDetails(List<String> emails, String ownerId) {
         db.collection("users").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            memberList.clear();
-            List<Map<String, Object>> sortedList = new ArrayList<>();
             Map<String, DocumentSnapshot> foundUsers = new HashMap<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
                 String email = doc.getString("email");
                 if (email != null) foundUsers.put(email.toLowerCase().trim(), doc);
                 foundUsers.put(doc.getId(), doc);
             }
+
+            List<Map<String, Object>> newList = new ArrayList<>();
             DocumentSnapshot ownerDoc = foundUsers.get(ownerId);
-            if (ownerDoc != null) addMemberToList(ownerDoc, sortedList);
+            if (ownerDoc != null) addMemberToList(ownerDoc, newList);
+            
             for (String email : emails) {
                 DocumentSnapshot userDoc = foundUsers.get(email.toLowerCase().trim());
                 if (userDoc != null && !userDoc.getId().equals(ownerId)) {
-                    addMemberToList(userDoc, sortedList);
+                    addMemberToList(userDoc, newList);
                 }
             }
-            memberList.addAll(sortedList);
+
+            memberList.clear();
+            memberList.addAll(newList);
             adapter.notifyDataSetChanged();
             listenToMemberLocations();
         });

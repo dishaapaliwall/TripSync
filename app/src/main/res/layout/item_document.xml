@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="16dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/dialog_btn_outline"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/ivDocIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_document"
+        android:tint="#FFFFFF"
+        android:layout_marginEnd="12dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDocType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flight Tickets"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/dm_sans_medium"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvDocUploader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Uploaded by you"
+            android:textColor="#888888"
+            android:fontFamily="@font/dm_sans_regular"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout>

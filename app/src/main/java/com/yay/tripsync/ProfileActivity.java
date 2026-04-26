@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.List;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -128,10 +129,16 @@ public class ProfileActivity extends AppCompatActivity {
 
                     if (value != null) {
                         for (DocumentSnapshot doc : value.getDocuments()) {
+                            // 🔥 Check if trip is hidden by current user
+                            List<String> hiddenBy = (List<String>) doc.get("hiddenBy");
+                            if (hiddenBy != null && hiddenBy.contains(userId)) {
+                                continue; // Skip hidden trips
+                            }
+
                             String status = doc.getString("status");
                             if (status != null) {
                                 String cleanStatus = status.trim();
-                                if (cleanStatus.equalsIgnoreCase("Upcoming")) {
+                                if (cleanStatus.equalsIgnoreCase("Upcoming") || cleanStatus.equalsIgnoreCase("Ongoing")) {
                                     upcoming++;
                                 } else if (cleanStatus.equalsIgnoreCase("Completed")) {
                                     completed++;

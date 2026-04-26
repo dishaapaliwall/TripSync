@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class PastTripsActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private List<Trip> pastTripList = new ArrayList<>();
     private TripAdapter adapter;
+    private ListenerRegistration tripListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,11 @@ public class PastTripsActivity extends AppCompatActivity {
         rvPastTrips.setAdapter(adapter);
 
         setupBottomNavigation();
-        loadPastTrips();
+        
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            startListeningToPastTrips(user);
+        }
     }
 
     private void setupBottomNavigation() {
@@ -68,28 +74,48 @@ public class PastTripsActivity extends AppCompatActivity {
         });
     }
 
-    private void loadPastTrips() {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) return;
+    private void startListeningToPastTrips(FirebaseUser user) {
+        if (tripListener != null) tripListener.remove();
 
-        db.collection("trips")
+        String userUid = user.getUid();
+        String userEmail = user.getEmail().toLowerCase().trim();
+
+        tripListener = db.collection("trips")
                 .where(Filter.and(
                         Filter.or(
-                                Filter.equalTo("userId", user.getUid()),
-                                Filter.arrayContains("participants", user.getEmail().toLowerCase().trim())
+                                Filter.equalTo("userId", userUid),
+                                Filter.arrayContains("participants", userEmail)
                         ),
                         Filter.equalTo("status", "Completed")
                 ))
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     pastTripList.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Trip trip = doc.toObject(Trip.class);
-                        pastTripList.add(trip);
+                    if (value == null || value.isEmpty()) {
+                        tvEmpty.setVisibility(View.VISIBLE);
+                    } else {
+                        boolean hasVisibleTrips = false;
+                        for (QueryDocumentSnapshot doc : value) {
+                            Trip trip = doc.toObject(Trip.class);
+                            List<String> hiddenBy = trip.getHiddenBy();
+                            if (hiddenBy == null || !hiddenBy.contains(userUid)) {
+                                pastTripList.add(trip);
+                                hasVisibleTrips = true;
+                            }
+                        }
+                        tvEmpty.setVisibility(hasVisibleTrips ? View.GONE : View.VISIBLE);
                     }
                     adapter.notifyDataSetChanged();
-                    tvEmpty.setVisibility(pastTripList.isEmpty() ? View.VISIBLE : View.GONE);
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tripListener != null) tripListener.remove();
     }
 }

@@ -19,9 +19,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TripDetailActivity extends AppCompatActivity {
 
@@ -35,19 +40,16 @@ public class TripDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 🔥 Fix: Standard status bar (Black) and app starting below it
         Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(Color.BLACK);
-        // Reset full screen flags if they were set
         window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
         setContentView(R.layout.activity_trip_detail);
 
         db = FirebaseFirestore.getInstance();
 
-        // Initialize Views
         ImageView backBtn = findViewById(R.id.backBtn);
         tripImage = findViewById(R.id.tripImage);
         tripName = findViewById(R.id.tripName);
@@ -62,17 +64,15 @@ public class TripDetailActivity extends AppCompatActivity {
 
         backBtn.setOnClickListener(v -> finish());
 
-        // Initial data from Intent
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
         String location = intent.getStringExtra("location");
         String startDate = intent.getStringExtra("startDate");
         String endDate = intent.getStringExtra("endDate");
-        String tripCode = intent.getStringExtra("tripId"); // We passed tripCode as tripId in adapter
+        String tripCode = intent.getStringExtra("tripId"); 
         int imageRes = intent.getIntExtra("imageRes", -1);
         String imageUrl = intent.getStringExtra("imageUrl");
 
-        // Set Placeholder data
         tripName.setText(name);
         tripLocation.setText(location);
         tripDate.setText(startDate + " - " + endDate);
@@ -83,12 +83,10 @@ public class TripDetailActivity extends AppCompatActivity {
             tripImage.setImageResource(imageRes);
         }
 
-        // 🔥 Fetch Latest Data from Firebase
         if (tripCode != null) {
             fetchTripData(tripCode);
         }
 
-        // Setup Tabs
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         TripPagerAdapter adapter = new TripPagerAdapter(this, tripCode);
@@ -107,9 +105,9 @@ public class TripDetailActivity extends AppCompatActivity {
                     }
                 }
         ).attach();
+        
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
-
             if (tab != null) {
                 TextView tv = new TextView(this);
                 tv.setText(tab.getText());
@@ -119,7 +117,6 @@ public class TripDetailActivity extends AppCompatActivity {
                 tv.setMaxLines(1);
                 tv.setEllipsize(TextUtils.TruncateAt.END);
                 tv.setPadding(18,0,18,0);
-
                 tab.setCustomView(tv);
             }
         }
@@ -131,27 +128,57 @@ public class TripDetailActivity extends AppCompatActivity {
                 .addSnapshotListener((value, error) -> {
                     if (error != null || value == null || value.isEmpty()) return;
 
-                    com.google.firebase.firestore.DocumentSnapshot doc = value.getDocuments().get(0);
+                    DocumentSnapshot doc = value.getDocuments().get(0);
                     
                     double budget = doc.getDouble("budget") != null ? doc.getDouble("budget") : 0.0;
                     double spent = doc.getDouble("spent") != null ? doc.getDouble("spent") : 0.0;
                     List<String> participants = (List<String>) doc.get("participants");
-                    
-                    // Logic: Total = Host (1) + All Participants
-                    int totalMembers = 1 + (participants != null ? participants.size() : 0);
+                    String ownerId = doc.getString("userId");
 
-                    // Update UI
+                    // Update Budget UI
                     tvTotalBudget.setText("Total: ₹ " + (int)budget);
                     tvSpent.setText("Spent: ₹ " + (int)spent);
                     tvRemaining.setText("Remaining: ₹ " + (int)(budget - spent));
-                    tripMembers.setText(totalMembers + (totalMembers == 1 ? " Member" : " Members"));
-
+                    
                     if (budget > 0) {
                         int progress = (int) ((spent / budget) * 100);
                         budgetProgress.setProgress(progress);
                     } else {
                         budgetProgress.setProgress(0);
                     }
+
+                    // 🔥 Exact Member Count Logic: Matches MembersFragment.java exactly
+                    db.collection("users").get().addOnSuccessListener(usersSnap -> {
+                        Map<String, String> emailToUid = new HashMap<>();
+                        for (DocumentSnapshot u : usersSnap) {
+                            String email = u.getString("email");
+                            if (email != null) emailToUid.put(email.toLowerCase().trim(), u.getId());
+                        }
+
+                        int totalMembers = 1; // Always include Host (even if deleted)
+                        
+                        if (participants != null) {
+                            for (String pEmail : participants) {
+                                if (pEmail != null) {
+                                    String cleanEmail = pEmail.toLowerCase().trim();
+                                    String pUid = emailToUid.get(cleanEmail);
+                                    
+                                    if (pUid != null) {
+                                        // If user exists, only count if not the Host
+                                        if (!pUid.equals(ownerId)) {
+                                            totalMembers++;
+                                        }
+                                    } else {
+                                        // If account is deleted/not found, count it as a member (matches MembersFragment)
+                                        totalMembers++;
+                                    }
+                                }
+                            }
+                        }
+
+                        String memberText = totalMembers + (totalMembers == 1 ? " Member" : " Members");
+                        tripMembers.setText(memberText);
+                    });
                 });
     }
 }

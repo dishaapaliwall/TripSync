@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -37,6 +37,7 @@ public class TripActivity extends AppCompatActivity {
 
     private TextView noTripText, welcomeUser;
     private CircleImageView profileImage;
+    private ListenerRegistration tripListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,18 +61,16 @@ public class TripActivity extends AppCompatActivity {
         if (user != null) {
             repairUserData(user); // 🔥 Ensure name and email are in Firestore
             setupUserProfile(user);
+            startListeningToTrips(user);
         }
 
         setupClickListeners();
-        loadTrips();
     }
 
     private void repairUserData(FirebaseUser user) {
-        // Ensure email and name are always present in Firestore
         Map<String, Object> data = new HashMap<>();
         data.put("email", user.getEmail().toLowerCase().trim());
         
-        // If name is missing, use displayName or email part
         db.collection("users").document(user.getUid()).get().addOnSuccessListener(doc -> {
             if (!doc.contains("name") || doc.getString("name") == null || doc.getString("name").isEmpty()) {
                 String fallbackName = user.getDisplayName();
@@ -87,7 +86,6 @@ public class TripActivity extends AppCompatActivity {
     }
 
     private void setupUserProfile(FirebaseUser user) {
-        // Real-time listener for current user's profile
         db.collection("users").document(user.getUid()).addSnapshotListener((doc, error) -> {
             if (error != null || doc == null || !doc.exists()) return;
 
@@ -99,7 +97,6 @@ public class TripActivity extends AppCompatActivity {
             
             welcomeUser.setText("Welcome " + capitalize(fullName) + "!");
 
-            // 🔥 Use EXACT SAME DETERMINISTIC LOGIC for Avatar as Members section
             int[] avatars = {
                     R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha,
                     R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx
@@ -127,10 +124,60 @@ public class TripActivity extends AppCompatActivity {
         findViewById(R.id.btnNew).setOnClickListener(v -> startActivity(new Intent(TripActivity.this, NewTripActivity.class)));
     }
 
+    private void startListeningToTrips(FirebaseUser user) {
+        if (tripListener != null) tripListener.remove();
+
+        String userUid = user.getUid();
+        String userEmail = user.getEmail().toLowerCase().trim();
+
+        tripListener = db.collection("trips")
+                .where(Filter.and(
+                        Filter.or(
+                                Filter.equalTo("userId", userUid),
+                                Filter.arrayContains("participants", userEmail)
+                        ),
+                        Filter.or(
+                                Filter.equalTo("status", "Upcoming"),
+                                Filter.equalTo("status", "Ongoing")
+                        )
+                ))
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Failed to load trips", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    tripList.clear();
+                    if (value == null || value.isEmpty()) {
+                        noTripText.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    } else {
+                        boolean hasVisibleTrips = false;
+                        for (QueryDocumentSnapshot doc : value) {
+                            Trip trip = doc.toObject(Trip.class);
+                            List<String> hiddenBy = trip.getHiddenBy();
+                            if (hiddenBy == null || !hiddenBy.contains(userUid)) {
+                                tripList.add(trip);
+                                hasVisibleTrips = true;
+                            }
+                        }
+                        
+                        if (hasVisibleTrips) {
+                            noTripText.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            noTripText.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                });
+    }
+
     @Override
-    protected void onResume() {
-        super.onResume();
-        loadTrips();
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tripListener != null) tripListener.remove();
     }
 
     private String capitalize(String str) {
@@ -143,39 +190,5 @@ public class TripActivity extends AppCompatActivity {
             }
         }
         return sb.toString().trim();
-    }
-
-    private void loadTrips() {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) return;
-
-        db.collection("trips")
-                .where(Filter.and(
-                        Filter.or(
-                                Filter.equalTo("userId", user.getUid()),
-                                Filter.arrayContains("participants", user.getEmail().toLowerCase().trim())
-                        ),
-                        Filter.or(
-                                Filter.equalTo("status", "Upcoming"),
-                                Filter.equalTo("status", "Ongoing")
-                        )
-                ))
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    tripList.clear();
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        noTripText.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    } else {
-                        noTripText.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Trip trip = doc.toObject(Trip.class);
-                            tripList.add(trip);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to load trips", Toast.LENGTH_SHORT).show());
     }
 }

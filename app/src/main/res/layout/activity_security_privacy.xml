@@ -74,63 +74,56 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"/>
 
-            <!-- Privacy Section with Toggle -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/txtPrivacy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Privacy"
-                    android:textColor="#FF2D55"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/dm_sans_bold"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchPrivateProfile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    app:thumbTint="#FF2D55"
-                    app:trackTint="#66FF2D55"
-                    android:checked="false"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/txtPrivacy"
-                    android:text="Private Profile: Mera profile sirf friends ko dikhe."
-                    android:textColor="#CCCCCC"
-                    android:textSize="13sp"
-                    android:layout_marginTop="5dp"
-                    android:fontFamily="@font/dm_sans_medium"/>
-            </RelativeLayout>
+            <!-- Deactivation (Temporary) Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deactivate Account"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:fontFamily="@font/dm_sans_bold"/>
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="At TripSync, we take your privacy very seriously. Therefore we would like to inform you what data we collect, as well as when and how we deal with your personal information. To learn more, read our Privacy Policy and Cookies Policy. If you have any questions, don't hesitate to contact us."
+                android:text="Temporarily disable your account. You can return anytime by simply logging back in."
                 android:textColor="#CCCCCC"
                 android:textSize="14sp"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:fontFamily="@font/dm_sans_medium"/>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnDeactivateAccount"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#1A1A1A"
+                android:layout_marginTop="15dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Deactivate Temporarily"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/dm_sans_bold"/>
+            </androidx.cardview.widget.CardView>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#33FFFFFF"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"/>
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="25dp"/>
 
-            <!-- Delete Account Section -->
+            <!-- Permanent Deletion Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete account"
+                android:text="Delete Account Permanently"
                 android:textColor="#FF2D55"
                 android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_bold"/>
@@ -138,48 +131,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Permanently delete your account and data. You can recover your account by logging in within 30 days."
+                android:text="Warning: This will immediately erase all your data, trips, and settings. This action cannot be undone."
                 android:textColor="#CCCCCC"
                 android:textSize="14sp"
                 android:layout_marginTop="10dp"
                 android:fontFamily="@font/dm_sans_medium"/>
 
-            <!-- Delete Button Styled Like TripSync -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/btnDeleteAccount"
+                android:id="@+id/btnDeleteAccountPermanent"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="#2A0A0A"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="40dp"
                 android:clickable="true"
                 android:focusable="true">
-
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_back"
-                        android:rotation="180"
-                        app:tint="#FF2D55"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Delete your account"
-                        android:textColor="#FF2D55"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/dm_sans_bold"
-                        android:layout_marginStart="10dp"/>
-                </LinearLayout>
+                    android:text="Delete Permanently"
+                    android:textColor="#FF2D55"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/dm_sans_bold"/>
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>

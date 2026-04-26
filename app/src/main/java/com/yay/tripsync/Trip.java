@@ -1,5 +1,7 @@
 package com.yay.tripsync;
 
+import java.util.List;
+
 public class Trip {
     private String name;
     private String location;
@@ -10,10 +12,14 @@ public class Trip {
     private double spent;
     private String imageUrl;
     private String tripCode;
+    private String userId;
+    private List<String> invitedEmails;
+    private List<String> participants;
+    private List<String> hiddenBy; // UIDs of users who hid this trip
 
     public Trip() {}
 
-    public Trip(String name, String location, String startDate, String endDate, String status, double budget, double spent, String imageUrl, String tripCode) {
+    public Trip(String name, String location, String startDate, String endDate, String status, double budget, double spent, String imageUrl, String tripCode, String userId, List<String> invitedEmails, List<String> participants, List<String> hiddenBy) {
         this.name = name;
         this.location = location;
         this.startDate = startDate;
@@ -23,6 +29,10 @@ public class Trip {
         this.spent = spent;
         this.imageUrl = imageUrl;
         this.tripCode = tripCode;
+        this.userId = userId;
+        this.invitedEmails = invitedEmails;
+        this.participants = participants;
+        this.hiddenBy = hiddenBy;
     }
 
     public String getName() { return name; }
@@ -51,4 +61,16 @@ public class Trip {
 
     public String getTripCode() { return tripCode; }
     public void setTripCode(String tripCode) { this.tripCode = tripCode; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
+    public List<String> getInvitedEmails() { return invitedEmails; }
+    public void setInvitedEmails(List<String> invitedEmails) { this.invitedEmails = invitedEmails; }
+
+    public List<String> getParticipants() { return participants; }
+    public void setParticipants(List<String> participants) { this.participants = participants; }
+
+    public List<String> getHiddenBy() { return hiddenBy; }
+    public void setHiddenBy(List<String> hiddenBy) { this.hiddenBy = hiddenBy; }
 }

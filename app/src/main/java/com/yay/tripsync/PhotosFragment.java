@@ -3,6 +3,8 @@ package com.yay.tripsync;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -146,6 +149,35 @@ public class PhotosFragment extends Fragment {
         });
     }
 
+    private void showDeleteDialog(String mediaId) {
+        if (getContext() == null) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_delete_confirm, null);
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        tvTitle.setText("Delete Media");
+        tvMessage.setText("Are you sure you want to delete this photo/video permanently?");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v -> {
+            deleteMedia(mediaId);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
     private void deleteMedia(String mediaId) {
         db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (!queryDocumentSnapshots.isEmpty()) {
@@ -190,12 +222,7 @@ public class PhotosFragment extends Fragment {
                 boolean isUploader = currentUserId != null && currentUserId.equals(uploaderId);
                 
                 if (isUploader) {
-                    new AlertDialog.Builder(getContext())
-                            .setTitle("Delete Media")
-                            .setMessage("Do you want to delete this permanently?")
-                            .setPositiveButton("Delete", (d, w) -> deleteMedia(media.get("id")))
-                            .setNegativeButton("Cancel", null)
-                            .show();
+                    showDeleteDialog(media.get("id"));
                 } else {
                     Toast.makeText(getContext(), "You can only delete your own uploads", Toast.LENGTH_SHORT).show();
                 }

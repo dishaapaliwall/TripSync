@@ -1,23 +1,26 @@
 package com.yay.tripsync;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,11 +32,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -48,8 +53,9 @@ public class MembersFragment extends Fragment {
     private List<Map<String, Object>> memberList = new ArrayList<>();
     private String tripOwnerId;
     private String selectedDocType;
+    private ListenerRegistration docsListener;
+    private AlertDialog currentDocsDialog;
 
-    // The preset must be set to "Unsigned" in your Cloudinary Dashboard
     private static final String CLOUDINARY_PRESET = "gda3ahqj";
 
     private final ActivityResultLauncher<Intent> pickDocLauncher = registerForActivityResult(
@@ -86,7 +92,6 @@ public class MembersFragment extends Fragment {
             ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Trip Code", tripCode);
             clipboard.setPrimaryClip(clip);
-            // Toast removed to avoid double notification on newer Android versions
         });
 
         v.findViewById(R.id.btnUploadFlight).setOnClickListener(view -> checkExistingAndOpenPicker("Flight Tickets"));
@@ -140,7 +145,6 @@ public class MembersFragment extends Fragment {
 
         Toast.makeText(getContext(), "Uploading " + type + "...", Toast.LENGTH_SHORT).show();
         
-        // This targets https://api.cloudinary.com/v1_1/dsuwxepmx/auto/upload
         MediaManager.get().upload(uri)
                 .unsigned(CLOUDINARY_PRESET)
                 .option("resource_type", "auto") 
@@ -202,12 +206,23 @@ public class MembersFragment extends Fragment {
                 if (email != null) foundUsers.put(email.toLowerCase().trim(), doc);
                 foundUsers.put(doc.getId(), doc);
             }
+            
             DocumentSnapshot ownerDoc = foundUsers.get(ownerId);
-            if (ownerDoc != null) addMemberToList(ownerDoc, "Host", sortedList);
+            if (ownerDoc != null) {
+                addMemberToList(ownerDoc, "Host", sortedList, false);
+            } else {
+                addMemberToList(null, "Host", sortedList, true);
+            }
+
             for (String email : emails) {
-                DocumentSnapshot userDoc = foundUsers.get(email.toLowerCase().trim());
-                if (userDoc != null && !userDoc.getId().equals(ownerId)) {
-                    addMemberToList(userDoc, "Member", sortedList);
+                String cleanEmail = email.toLowerCase().trim();
+                DocumentSnapshot userDoc = foundUsers.get(cleanEmail);
+                if (userDoc != null) {
+                    if (!userDoc.getId().equals(ownerId)) {
+                        addMemberToList(userDoc, "Member", sortedList, false);
+                    }
+                } else {
+                    addMemberToList(null, "Member", sortedList, true);
                 }
             }
             memberList.addAll(sortedList);
@@ -220,78 +235,108 @@ public class MembersFragment extends Fragment {
         });
     }
 
-    private void addMemberToList(DocumentSnapshot doc, String role, List<Map<String, Object>> list) {
+    private void addMemberToList(DocumentSnapshot doc, String role, List<Map<String, Object>> list, boolean isDeleted) {
         Map<String, Object> member = new HashMap<>();
-        member.put("uid", doc.getId());
-        member.put("email", doc.getString("email"));
-        String name = doc.getString("name");
-        if (name == null || name.isEmpty()) {
-            String email = doc.getString("email");
-            name = (email != null) ? email.split("@")[0] : "Unknown";
+        if (isDeleted) {
+            member.put("uid", "deleted_" + new Random().nextInt(1000));
+            member.put("email", "");
+            member.put("name", generateRandomString(3));
+            member.put("isDeleted", true);
+        } else {
+            member.put("uid", doc.getId());
+            member.put("email", doc.getString("email"));
+            String name = doc.getString("name");
+            if (name == null || name.isEmpty()) {
+                String email = doc.getString("email");
+                name = (email != null) ? email.split("@")[0] : "Unknown";
+            }
+            member.put("name", name);
+            member.put("isDeleted", false);
         }
-        member.put("name", name);
         member.put("role", role);
         list.add(member);
     }
 
-    private void showUserDocs(String targetUserId, String targetUserName) {
+    private String generateRandomString(int len) {
+        String chars = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder();
+        Random rnd = new Random();
+        while (sb.length() < len) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+
+    private void showUserDocs(String targetUserId, String targetUserName, boolean isDeleted) {
+        if (isDeleted) {
+            Toast.makeText(getContext(), "Account deleted. Documents removed.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (!queryDocumentSnapshots.isEmpty()) {
                 String tripDocId = queryDocumentSnapshots.getDocuments().get(0).getId();
-                db.collection("trips").document(tripDocId).collection("documents")
-                        .whereEqualTo("userId", targetUserId).get()
-                        .addOnSuccessListener(docs -> {
-                            if (docs.isEmpty()) {
-                                db.collection("trips").document(tripDocId).collection("documents")
-                                    .whereEqualTo("userName", targetUserName).get().addOnSuccessListener(docs2 -> {
-                                        if (docs2.isEmpty()) {
-                                            Toast.makeText(getContext(), "No documents found", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            displayDocsDialog(tripDocId, targetUserName, docs2.getDocuments());
-                                        }
-                                    });
+                
+                // 🔥 Real-time listener for documents
+                if (docsListener != null) docsListener.remove();
+                
+                docsListener = db.collection("trips").document(tripDocId).collection("documents")
+                        .whereEqualTo("userId", targetUserId)
+                        .addSnapshotListener((value, error) -> {
+                            if (error != null) return;
+                            if (value == null || value.isEmpty()) {
+                                if (currentDocsDialog != null && currentDocsDialog.isShowing()) {
+                                    currentDocsDialog.dismiss();
+                                }
+                                Toast.makeText(getContext(), "No documents found", Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            displayDocsDialog(tripDocId, targetUserName, docs.getDocuments());
+                            displayDocsDialog(tripDocId, targetUserName, value.getDocuments());
                         });
             }
         });
     }
 
     private void displayDocsDialog(String tripDocId, String userName, List<DocumentSnapshot> docs) {
-        List<String> items = new ArrayList<>();
-        List<String> urls = new ArrayList<>();
-        List<String> docIds = new ArrayList<>();
-        List<String> uploaderIds = new ArrayList<>();
-
-        for (DocumentSnapshot d : docs) {
-            items.add(d.getString("type"));
-            urls.add(d.getString("url"));
-            docIds.add(d.getId());
-            uploaderIds.add(d.getString("userId"));
+        if (currentDocsDialog != null && currentDocsDialog.isShowing()) {
+            RecyclerView rvDocs = currentDocsDialog.findViewById(R.id.rvDocs);
+            if (rvDocs != null) {
+                rvDocs.setAdapter(new DocumentAdapter(docs, (doc, action) -> {
+                    if (action.equals("View")) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(doc.getString("url")));
+                        startActivity(browserIntent);
+                    } else if (action.equals("Delete")) {
+                        deleteDoc(tripDocId, doc.getId());
+                    }
+                }));
+            }
+            return;
         }
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Documents: " + userName)
-                .setItems(items.toArray(new CharSequence[0]), (dialog, which) -> {
-                    String currentDocId = docIds.get(which);
-                    String currentUrl = urls.get(which);
-                    String currentUploaderId = uploaderIds.get(which);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_member_docs, null);
+        currentDocsDialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
 
-                    boolean isOwner = auth.getUid() != null && auth.getUid().equals(currentUploaderId);
-                    String[] options = isOwner ? new String[]{"View", "Delete"} : new String[]{"View"};
+        if (currentDocsDialog.getWindow() != null) {
+            currentDocsDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
-                    new AlertDialog.Builder(getContext())
-                        .setTitle(items.get(which))
-                        .setItems(options, (d2, w2) -> {
-                            if (options[w2].equals("View")) {
-                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentUrl));
-                                startActivity(browserIntent);
-                            } else {
-                                deleteDoc(tripDocId, currentDocId);
-                            }
-                        }).show();
-                }).show();
+        TextView tvTitle = dialogView.findViewById(R.id.tvDocDialogTitle);
+        tvTitle.setText("Docs: " + userName);
+
+        RecyclerView rvDocs = dialogView.findViewById(R.id.rvDocs);
+        rvDocs.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvDocs.setAdapter(new DocumentAdapter(docs, (doc, action) -> {
+            if (action.equals("View")) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(doc.getString("url")));
+                startActivity(browserIntent);
+            } else if (action.equals("Delete")) {
+                deleteDoc(tripDocId, doc.getId());
+            }
+        }));
+
+        dialogView.findViewById(R.id.btnDocClose).setOnClickListener(v -> currentDocsDialog.dismiss());
+        currentDocsDialog.show();
     }
 
     private void deleteDoc(String tripDocId, String docId) {
@@ -299,7 +344,14 @@ public class MembersFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Document Deleted", Toast.LENGTH_SHORT).show());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (docsListener != null) docsListener.remove();
+    }
+
     private void removeMember(String email) {
+        if (email == null || email.isEmpty()) return;
         new AlertDialog.Builder(getContext())
                 .setTitle("Remove Member")
                 .setMessage("Are you sure?")
@@ -311,6 +363,58 @@ public class MembersFragment extends Fragment {
                         }
                     });
                 }).setNegativeButton("Cancel", null).show();
+    }
+
+    private class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.ViewHolder> {
+        private List<DocumentSnapshot> docs;
+        private OnDocClickListener listener;
+
+        DocumentAdapter(List<DocumentSnapshot> docs, OnDocClickListener listener) {
+            this.docs = docs;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_document, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            DocumentSnapshot doc = docs.get(position);
+            String type = doc.getString("type");
+            String uploaderId = doc.getString("userId");
+
+            holder.tvType.setText(type);
+            boolean isMe = auth.getUid() != null && auth.getUid().equals(uploaderId);
+            holder.tvUploader.setText(isMe ? "Uploaded by you" : "Uploaded by member");
+
+            holder.itemView.setOnClickListener(v -> {
+                String[] options = isMe ? new String[]{"View", "Delete"} : new String[]{"View"};
+                new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                        .setTitle(type)
+                        .setItems(options, (d, which) -> listener.onDocClick(doc, options[which]))
+                        .show();
+            });
+        }
+
+        @Override
+        public int getItemCount() { return docs.size(); }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView tvType, tvUploader;
+            ViewHolder(View v) {
+                super(v);
+                tvType = v.findViewById(R.id.tvDocType);
+                tvUploader = v.findViewById(R.id.tvDocUploader);
+            }
+        }
+    }
+
+    interface OnDocClickListener {
+        void onDocClick(DocumentSnapshot doc, String action);
     }
 
     private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder> {
@@ -328,19 +432,28 @@ public class MembersFragment extends Fragment {
             String email = (String) member.get("email");
             String name = (String) member.get("name");
             String role = (String) member.get("role");
+            boolean isDeleted = (boolean) member.getOrDefault("isDeleted", false);
 
             holder.tvName.setText(name);
-            holder.tvEmail.setText(email);
+            holder.tvEmail.setText(isDeleted ? "Account Deleted" : email);
             holder.tvRole.setText(role);
 
             int[] avatars = {R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha, R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx};
             if (uid != null) holder.imgMember.setImageResource(avatars[Math.abs(uid.hashCode()) % avatars.length]);
 
             boolean isCurrentUserHost = auth.getUid() != null && auth.getUid().equals(tripOwnerId);
-            holder.btnRemove.setVisibility(isCurrentUserHost && !"Host".equalsIgnoreCase(role) ? View.VISIBLE : View.GONE);
+            holder.btnRemove.setVisibility(isCurrentUserHost && !"Host".equalsIgnoreCase(role) && !isDeleted ? View.VISIBLE : View.GONE);
             
             holder.btnRemove.setOnClickListener(v -> removeMember(email));
-            holder.btnDocs.setOnClickListener(v -> showUserDocs(uid, email));
+            holder.btnDocs.setOnClickListener(v -> showUserDocs(uid, email, isDeleted));
+            
+            if (isDeleted) {
+                holder.tvName.setTypeface(null, android.graphics.Typeface.ITALIC);
+                holder.tvEmail.setTextColor(0xFF888888);
+            } else {
+                holder.tvName.setTypeface(null, android.graphics.Typeface.BOLD);
+                holder.tvEmail.setTextColor(0xFFFFFFFF);
+            }
         }
 
         @Override

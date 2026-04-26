@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1C0808"
+    android:padding="24dp">
+
+    <!-- Icon -->
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_location"
+        android:tint="#FF2D55"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Meeting Point"
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/dm_sans_bold"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Message -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter the name of the place where everyone should meet."
+        android:textColor="#BBBBBB"
+        android:fontFamily="@font/dm_sans_regular"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Input Box -->
+    <EditText
+        android:id="@+id/etDestinationName"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:background="@drawable/dialog_input_background"
+        android:hint="e.g. Goa Airport, Baga Beach"
+        android:textColorHint="#555555"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:singleLine="true"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Action buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="#888888"
+            android:fontFamily="@font/dm_sans_medium"
+            android:textSize="14sp"
+            android:background="@drawable/dialog_btn_outline"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/btnSet"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Set Point"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/dm_sans_bold"
+            android:textSize="14sp"
+            android:background="@drawable/dialog_btn_primary"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+</LinearLayout>
