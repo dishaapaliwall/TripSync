@@ -9,8 +9,11 @@ import com.yay.tripsync.ChatFragment;
 
 public class TripPagerAdapter extends FragmentStateAdapter {
 
-    public TripPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    private String tripId;
+
+    public TripPagerAdapter(@NonNull FragmentActivity fragmentActivity, String tripId) {
         super(fragmentActivity);
+        this.tripId = tripId;
     }
 
     @NonNull
@@ -22,13 +25,14 @@ public class TripPagerAdapter extends FragmentStateAdapter {
             case 2: return new ChecklistFragment();
             case 3: return new MembersFragment();
             case 4: return new PhotosFragment();
-            case 5: return new ChatFragment();
+            case 5: return ChatFragment.newInstance(tripId);
+            case 6: return TrackFragment.newInstance(tripId);
             default: return new ItineraryFragment();
         }
     }
 
     @Override
     public int getItemCount() {
-        return 6;
+        return 7;
     }
 }

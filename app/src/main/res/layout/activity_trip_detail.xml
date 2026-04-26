@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.motion.widget.MotionLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/motionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#000000"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+
+    app:layoutDescription="@xml/trip_detail_scene">
 
     <!-- 🔹 Header Section (Image & Basic Info) -->
     <ScrollView
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -176,20 +181,29 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="48dp"
         android:background="#78182C"
-        app:tabIndicatorColor="#FFFFFF"
-        app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
+        app:tabGravity="center"
+        app:tabInlineLabel="true"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabTextColor="#BFFFFFFF"
         app:tabSelectedTextColor="#FFFFFF"
-        app:tabTextColor="#CCFFFFFF"
-        app:tabTextAppearance="@style/TextAppearance.AppCompat.Caption"/>
+        app:tabIndicatorColor="#FFFFFF"
+        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorFullWidth="false"
+        app:tabTextAppearance="@style/CustomTabTextAppearance"
+        app:tabPaddingStart="16dp"
+        app:tabPaddingEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"/>
 
     <!-- 🔹 ViewPager Section (The dynamic content) -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
 
-</LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.motion.widget.MotionLayout>
