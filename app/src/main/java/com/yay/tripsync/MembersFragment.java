@@ -132,7 +132,14 @@ public class MembersFragment extends Fragment {
             if (error != null || value == null) return;
             List<Map<String, String>> friends = (List<Map<String, String>>) value.get("friends_list");
             currentUserFriends.clear();
-            if (friends != null) currentUserFriends.addAll(friends);
+            if (friends != null) {
+                for (Object f : friends) {
+                    if (f instanceof Map) {
+                        Map<String, String> friendMap = (Map<String, String>) f;
+                        currentUserFriends.add(friendMap);
+                    }
+                }
+            }
         });
     }
 
@@ -390,19 +397,39 @@ public class MembersFragment extends Fragment {
         if (docsListener != null) docsListener.remove();
     }
 
-    private void removeMember(String email) {
+    private void removeMember(String email, String name) {
         if (email == null || email.isEmpty()) return;
-        new AlertDialog.Builder(getContext())
-                .setTitle("Remove Member")
-                .setMessage("Are you sure?")
-                .setPositiveButton("Remove", (dialog, which) -> {
-                    db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
-                            db.collection("trips").document(docId).update("participants", FieldValue.arrayRemove(email));
-                        }
-                    });
-                }).setNegativeButton("Cancel", null).show();
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_delete_confirm, null);
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        tvTitle.setText("Remove from Trip");
+        tvMessage.setText("Are you sure you want to remove '" + name + "' from this trip?");
+        btnDelete.setText("Remove");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v -> {
+            db.collection("trips").whereEqualTo("tripCode", tripCode).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                    db.collection("trips").document(docId).update("participants", FieldValue.arrayRemove(email));
+                }
+            });
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void showAddFriendDialog(String targetUid, String targetEmail, String targetName) {
@@ -522,12 +549,21 @@ public class MembersFragment extends Fragment {
             if (uid != null) holder.imgMember.setImageResource(avatars[Math.abs(uid.hashCode()) % avatars.length]);
 
             boolean isCurrentUserHost = auth.getUid() != null && auth.getUid().equals(tripOwnerId);
-            holder.btnRemove.setVisibility(isCurrentUserHost && !"Host".equalsIgnoreCase(role) && !isDeleted ? View.VISIBLE : View.GONE);
             
-            holder.btnRemove.setOnClickListener(v -> removeMember(email));
+            // Show remove button only if I am the host and it's not me and not deleted
+            boolean canRemove = isCurrentUserHost && !"Host".equalsIgnoreCase(role) && !isDeleted;
+            holder.btnRemove.setVisibility(canRemove ? View.VISIBLE : View.GONE);
+            
+            holder.btnRemove.setOnClickListener(v -> {
+                // Specifically trigger removal. 
+                // Using a separate listener ensures clicking this icon doesn't trigger the "Add Friend" dialog.
+                removeMember(email, name);
+            });
+
             holder.btnDocs.setOnClickListener(v -> showUserDocs(uid, email, isDeleted));
 
             holder.itemView.setOnClickListener(v -> {
+                // If the user clicked the item background (not btnRemove or btnDocs)
                 if (isDeleted || uid == null || uid.equals(auth.getUid())) return;
 
                 // Check friendship status
@@ -539,17 +575,15 @@ public class MembersFragment extends Fragment {
                     }
                 }
 
-                if (isAlreadyFriend) {
-                    Toast.makeText(getContext(), "Already Friends", Toast.LENGTH_SHORT).show();
-                    return;
+                if (!isAlreadyFriend) {
+                    // Only show Add Friend dialog if NOT already friends
+                    if (pendingRequestEmails.contains(email.toLowerCase().trim())) {
+                        Toast.makeText(getContext(), "Friend request already sent", Toast.LENGTH_SHORT).show();
+                    } else {
+                        showAddFriendDialog(uid, email, name);
+                    }
                 }
-
-                if (pendingRequestEmails.contains(email.toLowerCase().trim())) {
-                    Toast.makeText(getContext(), "Request Sent", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                showAddFriendDialog(uid, email, name);
+                // If they ARE friends, clicking the card does nothing (as requested)
             });
             
             if (isDeleted) {

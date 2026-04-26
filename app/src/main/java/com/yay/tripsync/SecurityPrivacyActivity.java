@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,8 +20,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SecurityPrivacyActivity extends AppCompatActivity {
@@ -62,13 +65,11 @@ public class SecurityPrivacyActivity extends AppCompatActivity {
         TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
         TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
         TextView btnAction = dialogView.findViewById(R.id.btnDelete);
-        ImageView ivIcon = dialogView.findViewById(R.id.ivIcon);
 
         if (isPermanent) {
             tvTitle.setText("DELETE PERMANENTLY");
-            tvMessage.setText("DANGER: This will delete everything forever. Your trips, photos, and messages will be gone. Are you absolutely sure?");
+            tvMessage.setText("DANGER: This will delete everything forever. Your trips, friends, and data will be gone. Are you absolutely sure?");
             btnAction.setText("DELETE FOREVER");
-            btnAction.setBackgroundResource(R.drawable.dialog_btn_primary); 
             btnAction.setOnClickListener(v -> {
                 performPermanentDeletion();
                 dialog.dismiss();
@@ -96,43 +97,98 @@ public class SecurityPrivacyActivity extends AppCompatActivity {
         String userId = user.getUid();
         String userEmail = user.getEmail() != null ? user.getEmail().toLowerCase().trim() : "";
 
-        Toast.makeText(this, "Cleaning up your data...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Deleting account... please wait.", Toast.LENGTH_LONG).show();
 
-        db.collection("trips").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            WriteBatch batch = db.batch();
-            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+        WriteBatch batch = db.batch();
+
+        // 1. Process Trips (Participants removal and Trip deletion)
+        db.collection("trips").get().addOnSuccessListener(tripsSnap -> {
+            for (DocumentSnapshot doc : tripsSnap) {
+                // Remove user from participants of any trip
                 List<String> participants = (List<String>) doc.get("participants");
                 if (participants != null && participants.contains(userEmail)) {
                     batch.update(doc.getReference(), "participants", FieldValue.arrayRemove(userEmail));
                 }
+                // Delete trips owned by this user
                 if (userId.equals(doc.getString("userId"))) {
                     batch.delete(doc.getReference());
                 }
             }
-            batch.delete(db.collection("users").document(userId));
 
-            batch.commit().addOnSuccessListener(aVoid -> {
-                SharedPreferences prefs = getSharedPreferences("TripSyncAccounts", MODE_PRIVATE);
-                Set<String> savedEmails = new HashSet<>(prefs.getStringSet("saved_emails", new HashSet<>()));
-                savedEmails.remove(userEmail);
-                prefs.edit()
-                        .putStringSet("saved_emails", savedEmails)
-                        .remove("pwd_" + userEmail)
-                        .apply();
-
-                user.delete().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Account deleted permanently.", Toast.LENGTH_LONG).show();
-                        navigateToMain();
-                    } else {
-                        Toast.makeText(this, "Please re-authenticate to verify it's you, then try deleting again.", Toast.LENGTH_LONG).show();
-                        auth.signOut();
-                        navigateToMain();
+            // 2. Process Users (Remove from Friend Lists)
+            db.collection("users").get().addOnSuccessListener(usersSnap -> {
+                for (DocumentSnapshot userDoc : usersSnap) {
+                    if (userDoc.getId().equals(userId)) {
+                        batch.delete(userDoc.getReference()); // Also delete current user doc
+                        continue;
                     }
+
+                    Object friendsObj = userDoc.get("friends_list");
+                    if (friendsObj instanceof List) {
+                        List<Map<String, Object>> friends = (List<Map<String, Object>>) friendsObj;
+                        List<Map<String, Object>> updatedFriends = new ArrayList<>();
+                        boolean isFriend = false;
+                        for (Map<String, Object> friend : friends) {
+                            if (friend == null) continue;
+                            
+                            String fUid = String.valueOf(friend.get("uid"));
+                            String fEmail = String.valueOf(friend.get("email")).toLowerCase().trim();
+                            
+                            // Check both UID and Email for thorough removal of old accounts
+                            if (userId.equals(fUid) || userEmail.equals(fEmail)) {
+                                isFriend = true;
+                            } else {
+                                updatedFriends.add(friend);
+                            }
+                        }
+                        if (isFriend) {
+                            batch.update(userDoc.getReference(), "friends_list", updatedFriends);
+                        }
+                    }
+                }
+
+                // 3. Process Friend Requests
+                db.collection("friend_requests").get().addOnSuccessListener(requestsSnap -> {
+                    for (DocumentSnapshot req : requestsSnap) {
+                        String fromUid = req.getString("fromUid");
+                        String toUid = req.getString("toUid");
+                        String fromEmail = req.getString("fromEmail");
+                        String toEmail = req.getString("toEmail");
+
+                        if (userId.equals(fromUid) || userId.equals(toUid) || 
+                            userEmail.equalsIgnoreCase(fromEmail) || userEmail.equalsIgnoreCase(toEmail)) {
+                            batch.delete(req.getReference());
+                        }
+                    }
+
+                    // 4. Commit all Firestore changes
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        // Cleanup SharedPreferences
+                        SharedPreferences prefs = getSharedPreferences("TripSyncAccounts", MODE_PRIVATE);
+                        Set<String> savedEmails = new HashSet<>(prefs.getStringSet("saved_emails", new HashSet<>()));
+                        savedEmails.remove(userEmail);
+                        prefs.edit()
+                                .putStringSet("saved_emails", savedEmails)
+                                .remove("pwd_" + userEmail)
+                                .apply();
+
+                        // 5. Delete from Firebase Authentication
+                        user.delete().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(SecurityPrivacyActivity.this, "Account deleted permanently.", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(SecurityPrivacyActivity.this, "Data cleared. Auth removal requires recent login.", Toast.LENGTH_LONG).show();
+                                auth.signOut();
+                            }
+                            navigateToMain();
+                        });
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(SecurityPrivacyActivity.this, "Database error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
                 });
-            }).addOnFailureListener(e -> {
-                Toast.makeText(this, "Error deleting data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(SecurityPrivacyActivity.this, "Failed to access data.", Toast.LENGTH_SHORT).show();
         });
     }
 

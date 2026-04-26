@@ -1,5 +1,7 @@
 package com.yay.tripsync;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,6 +62,8 @@ public class FriendsActivity extends AppCompatActivity {
             currentUserId = user.getUid();
             currentUserEmail = user.getEmail().toLowerCase().trim();
             currentUserName = user.getDisplayName();
+            // If display name is null, we'll try to get it from users collection later if needed, 
+            // but for friend requests we split email.
         }
 
         // Initialize Views
@@ -200,6 +205,66 @@ public class FriendsActivity extends AppCompatActivity {
         db.collection("friend_requests").document(doc.getId()).update("status", "rejected");
     }
 
+    private void showRemoveFriendDialog(Map<String, String> friend) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_delete_confirm, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        tvTitle.setText("Remove Friend");
+        tvMessage.setText("Are you sure you want to remove " + friend.get("name") + " from your friend list?");
+        btnDelete.setText("Remove");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v -> {
+            removeFriend(friend);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void removeFriend(Map<String, String> friendToRemove) {
+        String friendUid = friendToRemove.get("uid");
+        if (friendUid == null) return;
+
+        // 1. Remove from my list
+        db.collection("users").document(currentUserId)
+                .update("friends_list", FieldValue.arrayRemove(friendToRemove))
+                .addOnSuccessListener(aVoid -> {
+                    // 2. Remove me from their list
+                    db.collection("users").document(friendUid).get().addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            List<Map<String, String>> theirFriends = (List<Map<String, String>>) doc.get("friends_list");
+                            if (theirFriends != null) {
+                                Map<String, String> meInTheirList = null;
+                                for (Map<String, String> f : theirFriends) {
+                                    if (currentUserId.equals(f.get("uid"))) {
+                                        meInTheirList = f;
+                                        break;
+                                    }
+                                }
+                                if (meInTheirList != null) {
+                                    db.collection("users").document(friendUid)
+                                            .update("friends_list", FieldValue.arrayRemove(meInTheirList));
+                                }
+                            }
+                        }
+                    });
+                    Toast.makeText(this, "Friend removed", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to remove friend", Toast.LENGTH_SHORT).show());
+    }
+
     private class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHolder> {
         @NonNull
         @Override
@@ -236,7 +301,7 @@ public class FriendsActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_country, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend, parent, false);
             return new ViewHolder(v);
         }
 
@@ -244,19 +309,21 @@ public class FriendsActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Map<String, String> friend = friendList.get(position);
             holder.tvName.setText(friend.get("name"));
-            holder.ivCheck.setVisibility(View.GONE);
+            holder.tvEmail.setText(friend.get("email"));
+            holder.btnRemove.setOnClickListener(v -> showRemoveFriendDialog(friend));
         }
 
         @Override
         public int getItemCount() { return friendList.size(); }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName;
-            ImageView ivCheck;
+            TextView tvName, tvEmail;
+            ImageView btnRemove;
             ViewHolder(View v) {
                 super(v);
-                tvName = v.findViewById(R.id.tvCountryName);
-                ivCheck = v.findViewById(R.id.ivCheck);
+                tvName = v.findViewById(R.id.tvFriendName);
+                tvEmail = v.findViewById(R.id.tvFriendEmail);
+                btnRemove = v.findViewById(R.id.btnRemoveFriend);
             }
         }
     }

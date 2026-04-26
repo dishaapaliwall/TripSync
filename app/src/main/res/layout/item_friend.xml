@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="12dp"
-    android:background="#121212">
+    android:background="#000000">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@id/cbSelect"
+        android:layout_toStartOf="@id/btnRemoveFriend"
         android:paddingEnd="16dp">
 
         <TextView
@@ -24,28 +24,31 @@
             android:textSize="16sp"
             android:fontFamily="@font/dm_sans_medium" />
 
-            <TextView
-                android:id="@+id/tvFriendEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="friend@email.com"
-                android:textColor="#888888"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <CheckBox
-            android:id="@+id/cbSelect"
+        <TextView
+            android:id="@+id/tvFriendEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:buttonTint="#FF2D55" />
+            android:text="friend@email.com"
+            android:textColor="#888888"
+            android:textSize="13sp" />
+    </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="#33FFFFFF"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="12dp"/>
+    <ImageView
+        android:id="@+id/btnRemoveFriend"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_close"
+        app:tint="#FF2D55"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#33FFFFFF"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="12dp"/>
 
 </RelativeLayout>

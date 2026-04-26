@@ -2,7 +2,9 @@ package com.yay.tripsync;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -24,6 +26,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -385,6 +388,33 @@ public class ExpensesFragment extends Fragment {
         db.collection("trips").document(firestoreDocId).collection("expenses").add(data);
     }
 
+    private void showDeleteConfirmation(String docId, String description) {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_delete_confirm, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        tvTitle.setText("Delete Expense");
+        tvMessage.setText("Are you sure you want to delete '" + description + "'?");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v -> {
+            deleteExpense(docId);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
     private void deleteExpense(String docId) {
         db.collection("trips").document(firestoreDocId).collection("expenses").document(docId).delete();
     }
@@ -429,7 +459,7 @@ public class ExpensesFragment extends Fragment {
                 h.tvReceiptTag.setOnClickListener(null);
             }
             
-            h.btnDelete.setOnClickListener(v -> deleteExpense(item.docId));
+            h.btnDelete.setOnClickListener(v -> showDeleteConfirmation(item.docId, item.description));
         }
         @Override public int getItemCount() { return list.size(); }
         class VH extends RecyclerView.ViewHolder {

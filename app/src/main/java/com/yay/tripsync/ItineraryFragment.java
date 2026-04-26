@@ -1,6 +1,8 @@
 package com.yay.tripsync;
 
 import android.app.TimePickerDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -275,6 +278,33 @@ public class ItineraryFragment extends Fragment {
                                 "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
+    private void showDeleteConfirmation(String docId, String title) {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_delete_confirm, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
+        TextView btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        tvTitle.setText("Delete Activity");
+        tvMessage.setText("Are you sure you want to delete '" + title + "' from your itinerary?");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnDelete.setOnClickListener(v -> {
+            deleteActivity(docId);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
     private void deleteActivity(String docId) {
         db.collection("trips")
                 .document(firestoreDocId)
@@ -349,7 +379,7 @@ public class ItineraryFragment extends Fragment {
                 vh.layoutLocation.setVisibility(hasLoc ? View.VISIBLE : View.GONE);
                 if (hasLoc) vh.tvLocation.setText(item.location);
 
-                vh.btnDelete.setOnClickListener(v -> deleteActivity(item.docId));
+                vh.btnDelete.setOnClickListener(v -> showDeleteConfirmation(item.docId, item.title));
             }
         }
 
