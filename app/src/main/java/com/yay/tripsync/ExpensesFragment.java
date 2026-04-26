@@ -41,6 +41,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,57 +186,92 @@ public class ExpensesFragment extends Fragment {
     }
 
     private void calculateAndShowOwes() {
-        Map<String, Map<String, Double>> net = new HashMap<>();
+        // Direct Settlement Logic: Calculate net balance for each person
+        Map<String, Double> balances = new HashMap<>();
+        
+        // Use memberNames if available, otherwise build from expense list names
+        List<String> allMembers = new ArrayList<>(memberNames);
+        for (ExpenseItem e : expenseList) {
+            if (e.paidBy != null && !allMembers.contains(e.paidBy)) allMembers.add(e.paidBy);
+            for (String split : e.splitAmong) {
+                if (!allMembers.contains(split)) allMembers.add(split);
+            }
+        }
+        
+        for (String name : allMembers) balances.put(name, 0.0);
+
         for (ExpenseItem expense : expenseList) {
             if (expense.paidBy == null || expense.splitAmong.isEmpty()) continue;
-            double share = expense.amount / expense.splitAmong.size();
+            double amount = expense.amount;
+            double share = amount / expense.splitAmong.size();
+            
+            // Creditor: Gets the total amount back
+            balances.put(expense.paidBy, balances.get(expense.paidBy) + amount);
+            
+            // Debtors: Owe their share
             for (String person : expense.splitAmong) {
-                String debtor = person.trim();
-                String creditor = expense.paidBy.trim();
-                if (debtor.equalsIgnoreCase(creditor)) continue;
-                net.computeIfAbsent(debtor, k -> new HashMap<>());
-                double cur = net.get(debtor).getOrDefault(creditor, 0.0);
-                net.get(debtor).put(creditor, cur + share);
+                balances.put(person, balances.get(person) - share);
             }
         }
-        for (String a : new ArrayList<>(net.keySet())) {
-            Map<String, Double> aOwes = net.get(a);
-            for (String b : new ArrayList<>(aOwes.keySet())) {
-                double aOwesB = aOwes.getOrDefault(b, 0.0);
-                double bOwesA = net.containsKey(b) ? net.get(b).getOrDefault(a, 0.0) : 0.0;
-                if (aOwesB > bOwesA) {
-                    aOwes.put(b, aOwesB - bOwesA);
-                    if (net.containsKey(b)) net.get(b).put(a, 0.0);
-                } else {
-                    aOwes.put(b, 0.0);
-                    if (net.containsKey(b)) net.get(b).put(a, bOwesA - aOwesB);
-                }
-            }
+
+        List<Map.Entry<String, Double>> givers = new ArrayList<>();
+        List<Map.Entry<String, Double>> receivers = new ArrayList<>();
+
+        for (Map.Entry<String, Double> entry : balances.entrySet()) {
+            double b = entry.getValue();
+            if (b < -1.0) givers.add(new AbstractMap.SimpleEntry<>(entry.getKey(), b));
+            else if (b > 1.0) receivers.add(new AbstractMap.SimpleEntry<>(entry.getKey(), b));
         }
+
+        // Greedy matching to simplify transactions
+        givers.sort((a, b) -> a.getValue().compareTo(b.getValue())); // Most negative first
+        receivers.sort((a, b) -> b.getValue().compareTo(a.getValue())); // Most positive first
+
         layoutOwes.removeAllViews();
         boolean anyDebt = false;
-        for (Map.Entry<String, Map<String, Double>> entry : net.entrySet()) {
-            for (Map.Entry<String, Double> debt : entry.getValue().entrySet()) {
-                if (debt.getValue() < 1.0) continue;
+
+        int g = 0, r = 0;
+        while (g < givers.size() && r < receivers.size()) {
+            Map.Entry<String, Double> giver = givers.get(g);
+            Map.Entry<String, Double> receiver = receivers.get(r);
+
+            double amountToPay = Math.min(-giver.getValue(), receiver.getValue());
+            if (amountToPay > 1.0) {
                 anyDebt = true;
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                params.setMargins(0, 0, 0, 8);
-                TextView row = new TextView(requireContext());
-                row.setText(entry.getKey() + " \u2192 " + debt.getKey() + "   \u20B9" + (int) Math.round(debt.getValue()));
-                row.setTextColor(0xFFDDDDDD);
-                row.setTextSize(14f);
-                row.setPadding(32, 24, 32, 24);
-                CardView card = new CardView(requireContext());
-                card.setLayoutParams(params);
-                card.setRadius(12f);
-                card.setCardBackgroundColor(0xFF2A0A0A);
-                card.setCardElevation(0f);
-                card.addView(row);
-                layoutOwes.addView(card);
+                addSettlementRow(giver.getKey(), receiver.getKey(), amountToPay);
             }
+
+            givers.set(g, new AbstractMap.SimpleEntry<>(giver.getKey(), giver.getValue() + amountToPay));
+            receivers.set(r, new AbstractMap.SimpleEntry<>(receiver.getKey(), receiver.getValue() - amountToPay));
+
+            if (Math.abs(givers.get(g).getValue()) < 1.0) g++;
+            if (Math.abs(receivers.get(r).getValue()) < 1.0) r++;
         }
+
         tvOwesHeader.setVisibility(anyDebt ? View.VISIBLE : View.GONE);
         layoutOwes.setVisibility(anyDebt ? View.VISIBLE : View.GONE);
+    }
+
+    private void addSettlementRow(String from, String to, double amount) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0, 12);
+        
+        CardView card = new CardView(requireContext());
+        card.setLayoutParams(params);
+        card.setRadius(12f);
+        card.setCardBackgroundColor(0xFF290A0F);
+        card.setCardElevation(0f);
+        
+        TextView row = new TextView(requireContext());
+        row.setText(from + " \u2192 " + to + "   \u20B9" + (int) Math.round(amount));
+        row.setTextColor(0xFFFFFFFF);
+        row.setTextSize(15f);
+        row.setPadding(40, 32, 40, 32);
+        row.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        
+        card.addView(row);
+        layoutOwes.addView(card);
     }
 
     private void openFilePicker() {
@@ -281,7 +317,6 @@ public class ExpensesFragment extends Fragment {
         TextView tvSharePreview = v.findViewById(R.id.tvSharePreview);
         List<String> names = memberNames.isEmpty() ? buildFallbackNames() : new ArrayList<>(memberNames);
         
-        // Fix: Use custom layout for both selection view and dropdown view
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item, names);
         spinAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinPaid.setAdapter(spinAdapter);

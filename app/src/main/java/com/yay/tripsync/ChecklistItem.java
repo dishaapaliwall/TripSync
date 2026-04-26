@@ -7,6 +7,7 @@ public class ChecklistItem {
     private String category;
     private int quantity;
     private boolean checked;
+    private String addedByUid;
 
     public ChecklistItem() {}
 
@@ -16,6 +17,15 @@ public class ChecklistItem {
         this.category = category;
         this.quantity = quantity;
         this.checked = checked;
+    }
+
+    public ChecklistItem(String id, String name, String category, int quantity, boolean checked, String addedByUid) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.quantity = quantity;
+        this.checked = checked;
+        this.addedByUid = addedByUid;
     }
 
     public String getId() { return id; }
@@ -32,4 +42,7 @@ public class ChecklistItem {
 
     public boolean isChecked() { return checked; }
     public void setChecked(boolean checked) { this.checked = checked; }
+
+    public String getAddedByUid() { return addedByUid; }
+    public void setAddedByUid(String addedByUid) { this.addedByUid = addedByUid; }
 }
