@@ -406,12 +406,25 @@ public class MembersFragment extends Fragment {
     }
 
     private void showAddFriendDialog(String targetUid, String targetEmail, String targetName) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Add Friend")
-                .setMessage("Send friend request to " + targetName + "?")
-                .setPositiveButton("Add Friend", (dialog, which) -> sendFriendRequest(targetUid, targetEmail, targetName))
-                .setNegativeButton("Cancel", null)
-                .show();
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_friend, null);
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMessage = dialogView.findViewById(R.id.tvDialogMessage);
+        tvMessage.setText("Send friend request to " + targetName + "?");
+
+        dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnAddFriend).setOnClickListener(v -> {
+            sendFriendRequest(targetUid, targetEmail, targetName);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void sendFriendRequest(String targetUid, String targetEmail, String targetName) {
