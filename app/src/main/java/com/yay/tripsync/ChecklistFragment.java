@@ -1,7 +1,6 @@
 package com.yay.tripsync;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -23,8 +22,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,28 +37,40 @@ import java.util.Map;
 public class ChecklistFragment extends Fragment {
 
     private RecyclerView rvChecklist;
-    private TextView tvEmpty, tvProgressCount;
+    private TextView tvEmpty, tvProgressCount, tvReadyBadge;
     private ProgressBar progressBar;
+    private LinearLayout layoutTeamMembers;
+
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private String tripCode;
     private String tripDocId;
+    private String currentUid;
 
     private List<ChecklistItem> checklistItems = new ArrayList<>();
     private ChecklistAdapter adapter;
+
+    // Real-time listener for team ready statuses
+    private ListenerRegistration teamStatusListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_checklist, container, false);
 
         db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        currentUid = auth.getUid();
+
         if (getActivity() != null) {
             tripCode = getActivity().getIntent().getStringExtra("tripId");
         }
 
-        rvChecklist = v.findViewById(R.id.rvChecklist);
-        tvEmpty = v.findViewById(R.id.tvEmpty);
-        tvProgressCount = v.findViewById(R.id.tvProgressCount);
-        progressBar = v.findViewById(R.id.progressBar);
+        rvChecklist        = v.findViewById(R.id.rvChecklist);
+        tvEmpty            = v.findViewById(R.id.tvEmpty);
+        tvProgressCount    = v.findViewById(R.id.tvProgressCount);
+        progressBar        = v.findViewById(R.id.progressBar);
+        tvReadyBadge       = v.findViewById(R.id.tvReadyBadge);
+        layoutTeamMembers  = v.findViewById(R.id.layoutTeamMembers);
 
         v.findViewById(R.id.fabAdd).setOnClickListener(view -> showAddDialog());
 
@@ -70,7 +85,8 @@ public class ChecklistFragment extends Fragment {
         return v;
     }
 
-    // Step 1: get the Firestore document ID from the tripCode
+    // ── Firestore resolution ──────────────────────────────────────────────────
+
     private void resolveTripDocId() {
         db.collection("trips")
                 .whereEqualTo("tripCode", tripCode)
@@ -79,14 +95,20 @@ public class ChecklistFragment extends Fragment {
                     if (!query.isEmpty()) {
                         tripDocId = query.getDocuments().get(0).getId();
                         loadChecklist();
+                        listenToTeamStatus();
                     }
                 });
     }
 
-    // Step 2: listen for realtime updates on the checklist subcollection
+    // ── Private checklist for this user ──────────────────────────────────────
+    // Path: trips/{tripDocId}/checklists/{uid}/items
+
     private void loadChecklist() {
+        if (currentUid == null) return;
+
         db.collection("trips").document(tripDocId)
-                .collection("checklist")
+                .collection("checklists").document(currentUid)
+                .collection("items")
                 .orderBy("category")
                 .addSnapshotListener((value, error) -> {
                     if (error != null || value == null) return;
@@ -98,7 +120,8 @@ public class ChecklistFragment extends Fragment {
                                 doc.getString("name"),
                                 doc.getString("category"),
                                 doc.getLong("quantity") != null ? doc.getLong("quantity").intValue() : 1,
-                                Boolean.TRUE.equals(doc.getBoolean("checked"))
+                                Boolean.TRUE.equals(doc.getBoolean("checked")),
+                                currentUid
                         );
                         checklistItems.add(item);
                     }
@@ -109,6 +132,8 @@ public class ChecklistFragment extends Fragment {
                 });
     }
 
+    // ── Progress bar + ready badge + sync to Firestore ────────────────────────
+
     private void updateProgress() {
         int total = checklistItems.size();
         int packed = 0;
@@ -116,7 +141,7 @@ public class ChecklistFragment extends Fragment {
             if (item.isChecked()) packed++;
         }
 
-        tvProgressCount.setText(packed + " / " + total + " items are packed");
+        tvProgressCount.setText(packed + " / " + total + " items packed");
 
         if (total > 0) {
             progressBar.setMax(total);
@@ -124,15 +149,134 @@ public class ChecklistFragment extends Fragment {
         } else {
             progressBar.setProgress(0);
         }
+
+        boolean allDone = total > 0 && packed == total;
+        tvReadyBadge.setVisibility(allDone ? View.VISIBLE : View.GONE);
+
+        // Publish this user's ready status so teammates can see it
+        syncReadyStatus(allDone);
     }
 
+    /**
+     * Writes { ready, displayName } to trips/{tripDocId}/checklists/{uid}.
+     * This parent doc is shared/readable; only the items subcollection is private.
+     */
+    private void syncReadyStatus(boolean isReady) {
+        if (tripDocId == null || currentUid == null) return;
+
+        String displayName = "Member";
+        if (auth.getCurrentUser() != null && auth.getCurrentUser().getEmail() != null) {
+            String email = auth.getCurrentUser().getEmail();
+            displayName = email.contains("@") ? email.split("@")[0] : email;
+        }
+
+        Map<String, Object> status = new HashMap<>();
+        status.put("ready", isReady);
+        status.put("uid", currentUid);
+        status.put("displayName", displayName);
+
+        db.collection("trips").document(tripDocId)
+                .collection("checklists").document(currentUid)
+                .set(status, SetOptions.merge());
+    }
+
+    // ── Team status panel ─────────────────────────────────────────────────────
+
+    /**
+     * Listens to all documents in trips/{tripDocId}/checklists (one per member who
+     * has opened their checklist at least once). Each doc has { ready, displayName }.
+     * Renders the team status panel in real-time — entirely inside ChecklistFragment.
+     */
+    private void listenToTeamStatus() {
+        if (tripDocId == null) return;
+
+        teamStatusListener = db.collection("trips").document(tripDocId)
+                .collection("checklists")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null || snapshots == null || getContext() == null) return;
+                    renderTeamStatus(snapshots.getDocuments());
+                });
+    }
+
+    private void renderTeamStatus(List<DocumentSnapshot> docs) {
+        layoutTeamMembers.removeAllViews();
+
+        for (DocumentSnapshot doc : docs) {
+            Boolean isReady = doc.getBoolean("ready");
+            String displayName = doc.getString("displayName");
+            if (displayName == null || displayName.isEmpty()) displayName = "Member";
+
+            // Build one row per member: [dot] [name]   [badge or waiting]
+            LinearLayout row = new LinearLayout(getContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            rowParams.bottomMargin = dpToPx(5);
+            row.setLayoutParams(rowParams);
+
+            // Colored dot
+            TextView dot = new TextView(getContext());
+            dot.setText("●");
+            dot.setTextSize(8);
+            dot.setTextColor(Boolean.TRUE.equals(isReady) ? 0xFF4CAF50 : 0xFF555555);
+            LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            dotParams.setMarginEnd(dpToPx(7));
+            dot.setLayoutParams(dotParams);
+
+            // Name — highlight "you" slightly
+            TextView tvName = new TextView(getContext());
+            boolean isMe = doc.getId().equals(currentUid);
+            tvName.setText(isMe ? "You" : capitalize(displayName));
+            tvName.setTextSize(12);
+            tvName.setTextColor(isMe ? 0xFFFFFFFF : 0xFFCCCCCC);
+            tvName.setTypeface(null, isMe ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            tvName.setLayoutParams(nameParams);
+
+            // Status label on the right
+            TextView tvStatus = new TextView(getContext());
+            if (Boolean.TRUE.equals(isReady)) {
+                tvStatus.setText("✓ Ready");
+                tvStatus.setTextColor(0xFF4CAF50);
+                tvStatus.setTypeface(null, android.graphics.Typeface.BOLD);
+            } else {
+                tvStatus.setText("Packing…");
+                tvStatus.setTextColor(0xFF555555);
+            }
+            tvStatus.setTextSize(11);
+
+            row.addView(dot);
+            row.addView(tvName);
+            row.addView(tvStatus);
+
+            layoutTeamMembers.addView(row);
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
+
+    private String capitalize(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    // ── Add dialog ────────────────────────────────────────────────────────────
+
     private void showAddDialog() {
-        // Inflate our fully custom dialog layout
         View dialogView = LayoutInflater.from(getContext())
                 .inflate(R.layout.dialog_add_checklist_item, null);
 
-        // Build the dialog with a transparent background so our layout's
-        // rounded corners and dark color show cleanly
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
                 .create();
@@ -141,35 +285,26 @@ public class ChecklistFragment extends Fragment {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        // ── Item Name: AutoCompleteTextView with preset suggestions ──
         AutoCompleteTextView actvItemName = dialogView.findViewById(R.id.actvItemName);
 
         String[] itemSuggestions = {
-                // Clothing
                 "T-Shirts", "Shorts", "Jeans", "Flip Flops", "Sandals", "Sneakers",
                 "Swimwear", "Sunglasses", "Cap / Hat", "Jacket", "Raincoat",
-                // Electronics
                 "Phone Charger", "Power Bank", "Earphones / AirPods", "Camera",
                 "Laptop", "Laptop Charger", "Travel Adapter",
-                // Documents
                 "Aadhar Card", "Passport", "Driving License", "Hotel Booking",
                 "Flight Tickets", "Travel Insurance", "Visa Documents",
-                // Toiletries
                 "Toothbrush", "Toothpaste", "Shampoo", "Body Wash", "Deodorant",
                 "Face Wash", "Sunscreen", "Moisturizer", "Razor",
-                // Medicines
                 "Paracetamol", "ORS Sachets", "Band-Aids", "Antiseptic Cream",
                 "Motion Sickness Pills", "Personal Prescription Medicines",
-                // Food & Snacks
                 "Water Bottle", "Snack Bars", "Instant Noodles", "Dry Fruits",
-                // Other
                 "Travel Pillow", "Eye Mask", "Umbrella", "Luggage Lock", "Cash"
         };
 
         ArrayAdapter<String> nameAdapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_dropdown_item_1line, itemSuggestions) {
 
-            // Override getView so dropdown items match our dark theme
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -192,18 +327,13 @@ public class ChecklistFragment extends Fragment {
 
         actvItemName.setAdapter(nameAdapter);
         actvItemName.setDropDownBackgroundResource(android.R.color.transparent);
-        actvItemName.setThreshold(1); // Show suggestions after 1 character
-
-        // Show all suggestions when field is tapped (like a dropdown)
-        actvItemName.setOnClickListener(v -> actvItemName.showDropDown());
-        actvItemName.setOnFocusChangeListener((v, hasFocus) -> {
+        actvItemName.setThreshold(1);
+        actvItemName.setOnClickListener(vv -> actvItemName.showDropDown());
+        actvItemName.setOnFocusChangeListener((vv, hasFocus) -> {
             if (hasFocus) actvItemName.showDropDown();
         });
 
-        // ── Quantity EditText ──
         EditText etQuantity = dialogView.findViewById(R.id.etQuantity);
-
-        // ── Category Spinner ──
         Spinner spinnerCategory = dialogView.findViewById(R.id.spinnerCategory);
 
         String[] categories = {
@@ -211,7 +341,6 @@ public class ChecklistFragment extends Fragment {
                 "Toiletries", "Medicines", "Food & Snacks", "Other"
         };
 
-        // Custom spinner adapter to match dark theme
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_spinner_item, categories) {
 
@@ -240,10 +369,8 @@ public class ChecklistFragment extends Fragment {
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(categoryAdapter);
 
-        // ── Buttons ──
-        dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
-
-        dialogView.findViewById(R.id.btnAdd).setOnClickListener(v -> {
+        dialogView.findViewById(R.id.btnCancel).setOnClickListener(vv -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnAdd).setOnClickListener(vv -> {
             String name = actvItemName.getText().toString().trim();
             String qtyStr = etQuantity.getText().toString().trim();
             String category = spinnerCategory.getSelectedItem().toString();
@@ -268,53 +395,65 @@ public class ChecklistFragment extends Fragment {
         dialog.show();
     }
 
+    // ── Firestore writes ──────────────────────────────────────────────────────
+
     private void saveItem(String name, String category, int qty) {
-        if (tripDocId == null) return;
+        if (tripDocId == null || currentUid == null) return;
 
         Map<String, Object> item = new HashMap<>();
         item.put("name", name);
         item.put("category", category);
         item.put("quantity", qty);
         item.put("checked", false);
+        item.put("addedByUid", currentUid);
 
         db.collection("trips").document(tripDocId)
-                .collection("checklist")
+                .collection("checklists").document(currentUid)
+                .collection("items")
                 .add(item)
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Failed to add item", Toast.LENGTH_SHORT).show());
     }
 
     private void toggleChecked(ChecklistItem item) {
-        if (tripDocId == null) return;
+        if (tripDocId == null || currentUid == null) return;
         db.collection("trips").document(tripDocId)
-                .collection("checklist")
+                .collection("checklists").document(currentUid)
+                .collection("items")
                 .document(item.getId())
                 .update("checked", !item.isChecked());
     }
 
     private void deleteItem(ChecklistItem item) {
-        if (tripDocId == null) return;
+        if (tripDocId == null || currentUid == null) return;
         new AlertDialog.Builder(getContext(), android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Delete Item")
-                .setMessage("Remove \"" + item.getName() + "\" from checklist?")
+                .setMessage("Remove \"" + item.getName() + "\" from your checklist?")
                 .setPositiveButton("Delete", (d, w) ->
                         db.collection("trips").document(tripDocId)
-                                .collection("checklist")
+                                .collection("checklists").document(currentUid)
+                                .collection("items")
                                 .document(item.getId())
                                 .delete())
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    // ──────────────────────────────────────────────
-    // Adapter with category header grouping
-    // ──────────────────────────────────────────────
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (teamStatusListener != null) teamStatusListener.remove();
+    }
+
+    // ── RecyclerView Adapter ──────────────────────────────────────────────────
+
     private class ChecklistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final int TYPE_HEADER = 0;
-        private static final int TYPE_ITEM = 1;
+        private static final int TYPE_ITEM   = 1;
 
-        // Flat list mixing headers and items
         private List<Object> flatList = new ArrayList<>();
 
         public void updateData() {
@@ -325,10 +464,9 @@ public class ChecklistFragment extends Fragment {
         private void buildFlatList() {
             flatList.clear();
             String lastCategory = null;
-
             for (ChecklistItem item : checklistItems) {
                 if (!item.getCategory().equals(lastCategory)) {
-                    flatList.add(item.getCategory()); // String = header
+                    flatList.add(item.getCategory());
                     lastCategory = item.getCategory();
                 }
                 flatList.add(item);
@@ -343,13 +481,13 @@ public class ChecklistFragment extends Fragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            LayoutInflater inf = LayoutInflater.from(parent.getContext());
             if (viewType == TYPE_HEADER) {
-                View v = inflater.inflate(R.layout.item_checklist_header, parent, false);
-                return new HeaderViewHolder(v);
+                View vv = inf.inflate(R.layout.item_checklist_header, parent, false);
+                return new HeaderViewHolder(vv);
             } else {
-                View v = inflater.inflate(R.layout.item_checklist, parent, false);
-                return new ItemViewHolder(v);
+                View vv = inf.inflate(R.layout.item_checklist, parent, false);
+                return new ItemViewHolder(vv);
             }
         }
 
@@ -364,11 +502,9 @@ public class ChecklistFragment extends Fragment {
                 h.tvItemName.setText(item.getName());
                 h.tvQuantity.setText("Qty: " + item.getQuantity());
 
-                // Prevent listener firing during bind
                 h.cbCheck.setOnCheckedChangeListener(null);
                 h.cbCheck.setChecked(item.isChecked());
 
-                // Strikethrough when checked
                 if (item.isChecked()) {
                     h.tvItemName.setPaintFlags(h.tvItemName.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
                     h.tvItemName.setTextColor(0xFF666666);
@@ -379,8 +515,7 @@ public class ChecklistFragment extends Fragment {
 
                 h.cbCheck.setOnCheckedChangeListener((btn, isChecked) -> toggleChecked(item));
 
-                // Long press to delete
-                h.itemView.setOnLongClickListener(v -> {
+                h.itemView.setOnLongClickListener(vv -> {
                     deleteItem(item);
                     return true;
                 });
@@ -388,26 +523,24 @@ public class ChecklistFragment extends Fragment {
         }
 
         @Override
-        public int getItemCount() {
-            return flatList.size();
-        }
+        public int getItemCount() { return flatList.size(); }
 
         class HeaderViewHolder extends RecyclerView.ViewHolder {
             TextView tvCategory;
-            HeaderViewHolder(View v) {
-                super(v);
-                tvCategory = v.findViewById(R.id.tvCategory);
+            HeaderViewHolder(View vv) {
+                super(vv);
+                tvCategory = vv.findViewById(R.id.tvCategory);
             }
         }
 
         class ItemViewHolder extends RecyclerView.ViewHolder {
             CheckBox cbCheck;
             TextView tvItemName, tvQuantity;
-            ItemViewHolder(View v) {
-                super(v);
-                cbCheck = v.findViewById(R.id.cbCheck);
-                tvItemName = v.findViewById(R.id.tvItemName);
-                tvQuantity = v.findViewById(R.id.tvQuantity);
+            ItemViewHolder(View vv) {
+                super(vv);
+                cbCheck    = vv.findViewById(R.id.cbCheck);
+                tvItemName = vv.findViewById(R.id.tvItemName);
+                tvQuantity = vv.findViewById(R.id.tvQuantity);
             }
         }
     }
