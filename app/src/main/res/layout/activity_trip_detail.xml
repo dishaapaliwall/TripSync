@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- 🔹 Header Section (Image & Basic Info) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="220dp">
+
+                <ImageView
+                    android:id="@+id/tripImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/view1" />
+
+                <ImageView
+                    android:id="@+id/backBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_margin="16dp"
+                    android:src="@drawable/ic_back"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="15dp">
+
+                <TextView
+                    android:id="@+id/tripName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    tools:text="Goa Weekend Getaway" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="#F3DCE1" />
+                    <TextView
+                        android:id="@+id/tripLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="#F3DCE1"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/dm_sans_bold"
+                        tools:text="Goa, India" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="#F3DCE1" />
+                    <TextView
+                        android:id="@+id/tripDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="#F3DCE1"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/dm_sans_bold"
+                        tools:text="May 26 - May 28, 2026" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_friends"
+                        app:tint="#F3DCE1" />
+                    <TextView
+                        android:id="@+id/tripMembers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="#F3DCE1"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/dm_sans_bold"
+                        android:text="8 Members" />
+                </LinearLayout>
+
+                <!-- 💰 Budget Summary Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:text="Budget Summary"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalBudget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    tools:text="Total: ₹ 22,000" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+                    <TextView
+                        android:id="@+id/tvSpent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/dm_sans_bold"
+                        android:textColor="#FF4C4C"
+                        android:textSize="13sp"
+                        tools:text="Spent: ₹ 5,000" />
+                    <TextView
+                        android:id="@+id/tvRemaining"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:fontFamily="@font/dm_sans_bold"
+                        android:textColor="#2BFFB2"
+                        android:textSize="13sp"
+                        tools:text="Remaining: ₹ 17,000" />
+                </RelativeLayout>
+
+                <ProgressBar
+                    android:id="@+id/budgetProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="10dp"
+                    android:progress="30"
+                    android:progressTint="#78182C"
+                    android:trackTint="#33FFFFFF" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 🔹 Tabs Section (The RED bar) -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="#78182C"
+        app:tabIndicatorColor="#FFFFFF"
+        app:tabIndicatorHeight="2dp"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="#CCFFFFFF"
+        app:tabTextAppearance="@style/TextAppearance.AppCompat.Caption"/>
+
+    <!-- 🔹 ViewPager Section (The dynamic content) -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

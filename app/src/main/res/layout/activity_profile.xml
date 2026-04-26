@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:clipChildren="false"
+    android:fitsSystemWindows="true">
+
+    <!-- 🔥 FIXED HEADER SECTION -->
+    <RelativeLayout
+        android:id="@+id/headerArea"
+        android:layout_width="match_parent"
+        android:layout_height="356dp"
+        android:clipChildren="false">
+
+        <LinearLayout
+            android:id="@+id/whiteCard"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="120dp"
+            android:background="@drawable/profile_card_bg"
+            android:elevation="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="40dp">
+
+            <TextView
+                android:id="@+id/txtName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_bold"
+                android:text="User Name"
+                android:textColor="#8B1C2D"
+                android:layout_marginTop="40dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/txtEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="user@email.com"
+                android:textColor="#FF4D6D"
+                android:textSize="14sp" />
+
+            <!-- Stats -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="95dp"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/btn_red"
+                    android:backgroundTint="#78182C"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/txtUpcomingCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textColor="#FFFFFF"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="95dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/btn_red"
+                    android:backgroundTint="#78182C"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/txtCompletedCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textColor="#FFFFFF"
+                        android:textSize="9sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/topImage"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="-23dp"
+            android:elevation="5dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:src="@drawable/vector4" />
+
+        <FrameLayout
+            android:layout_width="105dp"
+            android:layout_height="105dp"
+            android:layout_marginTop="115dp"
+            android:layout_centerHorizontal="true"
+            android:elevation="10dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/half_half_ring"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_profile"
+                app:civ_border_color="#FFFFFF"
+                app:civ_border_width="2dp"/>
+        </FrameLayout>
+
+        <!-- 4. HEADER UI -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_back"
+            android:elevation="15dp"
+            app:tint="#FFFFFF"/>
+
+        <TextView
+            android:id="@+id/profileTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="50dp"
+            android:elevation="15dp" />
+    </RelativeLayout>
+
+    <!-- 📋 OPTIONS SECTION -->
+    <LinearLayout
+        android:id="@+id/optionsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headerArea"
+        android:layout_above="@id/bottomNav"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="20dp">
+
+        <!-- SETTINGS -->
+        <LinearLayout
+            android:id="@+id/btnSettings"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/option_bg"
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_settings"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginStart="14dp" />
+        </LinearLayout>
+
+        <!-- FRIENDS -->
+        <LinearLayout
+            android:id="@+id/btnFriends"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/option_bg"
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_friends"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friends"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginStart="14dp" />
+        </LinearLayout>
+
+        <!-- HELP -->
+        <LinearLayout
+            android:id="@+id/btnHelp"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@drawable/option_bg"
+            android:paddingHorizontal="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_help"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Help &amp; Support"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:layout_marginStart="14dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- FIXED BOTTOM ELEMENTS -->
+    <ImageView
+        android:id="@+id/bottomWave"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/vector_2"
+        android:scaleType="fitXY"
+        android:importantForAccessibility="no"/>
+
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#78182C">
+
+        <LinearLayout
+            android:id="@+id/navHome"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navTrips"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_luggage"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Past Trips"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navNotif"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_alerts"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notifications"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navProfile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_profile"
+                app:tint="#FFFFFF"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    REPLACE: app/src/main/res/layout/fragment_itinerary.xml
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Activity list — hidden when no activities exist -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvItinerary"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="100dp"
+        android:scrollbars="none"
+        android:visibility="gone" />
+
+    <!-- Empty state — shown when zero activities exist -->
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!--
+            CONNECT YOUR OWN IMAGE HERE:
+            1. Put your image file (e.g. img_empty_trip.png) into res/drawable/
+            2. Change the src below to @drawable/img_empty_trip
+            3. Adjust layout_width / layout_height to your liking
+        -->
+        <ImageView
+            android:id="@+id/imgEmptyState"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_calendar"
+            android:contentDescription="No plans yet"
+            android:scaleType="fitCenter"
+            app:tint="#333333" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="No plans yet"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="center"
+            android:text="Tap + to add your first activity"
+            android:textColor="#666666"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <!-- FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="Add activity"
+        app:backgroundTint="#78182C"
+        app:fabSize="normal"
+        app:tint="#FFFFFF" />
+
+</RelativeLayout>

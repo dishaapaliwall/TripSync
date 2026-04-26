@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "39577886215",
+    "project_id": "tripsync-f3f49",
+    "storage_bucket": "tripsync-f3f49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39577886215:android:cb44dbbd32b64a28f094a2",
+        "android_client_info": {
+          "package_name": "com.yay.tripsync"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "39577886215-jthtuafe9lg4on6pip3kngm659ve5hed.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yay.tripsync",
+            "certificate_hash": "49e19d45600db9e3be61018c9963d72e3189eb21"
+          }
+        },
+        {
+          "client_id": "39577886215-hrm9pjpj5jidigqifinl04tldsfjprai.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZv7b6J01KxQIm-NIqgce8eWxgfHsRCBU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "39577886215-hrm9pjpj5jidigqifinl04tldsfjprai.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

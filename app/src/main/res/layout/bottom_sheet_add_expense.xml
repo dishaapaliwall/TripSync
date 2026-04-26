@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    NEW FILE: app/src/main/res/layout/bottom_sheet_add_expense.xml
+-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1A1A1A"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="36dp">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:background="#555555" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Add Expense"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- DESCRIPTION -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Description"
+            android:textColor="#FF2D55"
+            android:textSize="13sp"
+            android:layout_marginBottom="6dp" />
+
+        <EditText
+            android:id="@+id/etDescription"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/input_bg"
+            android:hint="e.g. Dinner at Fisherman's Wharf"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:textSize="15sp"
+            android:padding="12dp"
+            android:inputType="textCapSentences" />
+
+        <!-- AMOUNT -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Amount (₹)"
+            android:textColor="#FF2D55"
+            android:textSize="13sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="6dp" />
+
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/input_bg"
+            android:hint="e.g. 1400"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:textSize="15sp"
+            android:padding="12dp"
+            android:inputType="numberDecimal" />
+
+        <!-- PAID BY — spinner populated with member names -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Paid By"
+            android:textColor="#FF2D55"
+            android:textSize="13sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="6dp" />
+
+        <Spinner
+            android:id="@+id/spinnerPaidBy"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="12dp"
+            android:popupBackground="#1E1E1E" />
+
+        <!-- SPLIT AMONG — checkboxes, one per member -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/dm_sans_bold"
+                android:text="Split Among"
+                android:textColor="#FF2D55"
+                android:textSize="13sp" />
+
+            <!-- Select All toggle -->
+            <TextView
+                android:id="@+id/tvSelectAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select All"
+                android:textColor="#FF2D55"
+                android:textSize="12sp"
+                android:fontFamily="@font/dm_sans_bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <!-- Dynamic checkboxes injected here by Java -->
+        <LinearLayout
+            android:id="@+id/layoutMemberCheckboxes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_bg"
+            android:padding="8dp" />
+
+        <!-- Per-person share preview -->
+        <TextView
+            android:id="@+id/tvSharePreview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:text=""
+            android:textColor="#2BFFB2"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- ADD BUTTON -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnAddExpense"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/btn_red"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Add Expense"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</ScrollView>

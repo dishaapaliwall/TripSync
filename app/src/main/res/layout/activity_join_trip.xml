@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- 🔥 TOP WAVE -->
+    <ImageView
+        android:id="@+id/topWave"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/vector3"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-20dp"
+        android:importantForAccessibility="no"/>
+
+    <!-- 🔙 BACK BUTTON -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:padding="4dp"
+        android:src="@drawable/ic_back"
+        app:tint="#FFFFFF" />
+
+    <!-- 📝 TITLE -->
+    <TextView
+        android:id="@+id/joinTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:text="Join Trip"
+        android:textColor="#FFFFFF"
+        android:textSize="27sp"
+        android:textStyle="bold" />
+
+    <!-- 📋 CENTER CONTENT -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="160dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <!-- 🔴 LOGO SECTION -->
+        <FrameLayout
+            android:layout_width="200dp"
+            android:layout_height="200dp">
+
+            <!-- Gradient Circle -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/join_circle_bg"
+                android:scaleType="fitCenter" />
+
+            <!-- Key with Keychain -->
+            <ImageView
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_key_chain"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+
+        <!-- 🏷️ TEXT LABELS -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:fontFamily="@font/dm_sans_bold"
+            android:text="Enter Your Trip Code"
+            android:textColor="#C62847"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Ask your trip host for the code"
+            android:textColor="#555555"
+            android:textSize="15sp" />
+
+        <!-- 📝 INPUT SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Trip Code"
+                android:textColor="#FF2D55"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/input_bg"
+                android:hint="Enter code e.g. TRIP-XXXX"
+                android:inputType="textCapCharacters"
+                android:padding="12dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888"
+                android:textSize="16sp" />
+
+            <!-- 🔘 JOIN BUTTON -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnJoin"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/btn_red"
+                android:fontFamily="@font/dm_sans_bold"
+                android:text="Join Trip"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

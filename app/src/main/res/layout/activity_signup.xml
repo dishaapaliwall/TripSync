@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/signup_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:padding="20dp"
+    android:fitsSystemWindows="true">
+
+    <!-- WAVE CUT -->
+    <ImageView
+        android:id="@+id/waveTop"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/vector3"
+        android:scaleType="fitXY"
+        android:layout_alignParentTop="true"
+        android:layout_margin="-20dp"
+        android:layout_marginTop="0dp"
+        android:importantForAccessibility="no"/>
+
+    <!-- BACK BUTTON -->
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/titleSignup"
+        android:text="@string/create_account"
+        android:textColor="@color/black"
+        android:fontFamily="@font/dm_sans_bold"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/subtitleSignup"
+        android:text="@string/join_tripsync_today"
+        android:textColor="#3C1F25"
+        android:textSize="18sp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:layout_below="@id/titleSignup"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- FORM START -->
+    <TextView
+        android:id="@+id/nameLabel"
+        android:text="@string/full_name"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/subtitleSignup"
+        android:layout_marginTop="130dp"
+        android:layout_marginStart="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupName"
+        android:hint="@string/enter_your_full_name"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/nameLabel"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPersonName"
+        android:autofillHints="name"/>
+
+    <TextView
+        android:id="@+id/emailLabelSignup"
+        android:text="@string/email_address"
+        android:textColor="#FF2D55"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/signupName"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupEmail"
+        android:hint="@string/enter_your_email_address"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/emailLabelSignup"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textEmailAddress"
+        android:autofillHints="emailAddress"/>
+
+    <TextView
+        android:id="@+id/passLabelSignup"
+        android:text="@string/password"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/signupEmail"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/signupPassword"
+        android:hint="@string/enter_your_password"
+        android:background="@drawable/input_bg"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_below="@id/passLabelSignup"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"
+        android:autofillHints="password"/>
+
+    <!-- BUTTON -->
+    <Button
+        android:id="@+id/btnSignup"
+        android:text="@string/create_account"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#78182C"
+        android:layout_below="@id/signupPassword"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"/>
+
+    <!-- LOGIN TEXT -->
+    <TextView
+        android:id="@+id/goToLogin"
+        android:text="@string/already_have_an_account_log_in"
+        android:textColor="#FF2D55"
+        android:layout_below="@id/btnSignup"
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
