@@ -86,6 +86,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     // ── Firestore resolution ──────────────────────────────────────────────────
+
     private void resolveTripDocId() {
         db.collection("trips")
                 .whereEqualTo("tripCode", tripCode)
@@ -514,8 +515,7 @@ public class ChecklistFragment extends Fragment {
 
                 h.cbCheck.setOnCheckedChangeListener((btn, isChecked) -> toggleChecked(item));
 
-                // Long press to delete
-                h.itemView.setOnLongClickListener(v -> {
+                h.itemView.setOnLongClickListener(vv -> {
                     deleteItem(item);
                     return true;
                 });

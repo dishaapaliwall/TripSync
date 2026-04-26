@@ -11,12 +11,13 @@ public class ChecklistItem {
 
     public ChecklistItem() {}
 
-    public ChecklistItem(String id, String name, String category, int quantity, boolean checked) {
+    public ChecklistItem(String id, String name, String category, int quantity, boolean checked, String addedByUid) {
         this.id = id;
         this.name = name;
         this.category = category;
         this.quantity = quantity;
         this.checked = checked;
+        this.addedByUid = addedByUid;
     }
 
     public ChecklistItem(String id, String name, String category, int quantity, boolean checked, String addedByUid) {
