@@ -53,6 +53,9 @@ public class MembersFragment extends Fragment {
     private List<Map<String, Object>> memberList = new ArrayList<>();
     private String tripOwnerId;
     private String selectedDocType;
+    private List<Map<String, String>> currentUserFriends = new ArrayList<>();
+    private List<String> pendingRequestEmails = new ArrayList<>();
+    private String currentUserName;
     private ListenerRegistration docsListener;
     private AlertDialog currentDocsDialog;
 
@@ -105,9 +108,47 @@ public class MembersFragment extends Fragment {
 
         if (tripCode != null) {
             loadTripAndMembers();
+            loadCurrentUserFriends();
+            loadPendingRequests();
+        }
+
+        if (auth.getCurrentUser() != null) {
+            currentUserName = auth.getCurrentUser().getDisplayName();
+            if (currentUserName == null || currentUserName.isEmpty()) {
+                db.collection("users").document(auth.getUid()).get().addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        currentUserName = doc.getString("name");
+                    }
+                });
+            }
         }
 
         return v;
+    }
+
+    private void loadCurrentUserFriends() {
+        if (auth.getUid() == null) return;
+        db.collection("users").document(auth.getUid()).addSnapshotListener((value, error) -> {
+            if (error != null || value == null) return;
+            List<Map<String, String>> friends = (List<Map<String, String>>) value.get("friends_list");
+            currentUserFriends.clear();
+            if (friends != null) currentUserFriends.addAll(friends);
+        });
+    }
+
+    private void loadPendingRequests() {
+        if (auth.getCurrentUser() == null) return;
+        db.collection("friend_requests")
+                .whereEqualTo("fromEmail", auth.getCurrentUser().getEmail().toLowerCase().trim())
+                .whereEqualTo("status", "pending")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) return;
+                    pendingRequestEmails.clear();
+                    for (DocumentSnapshot doc : value) {
+                        String toEmail = doc.getString("toEmail");
+                        if (toEmail != null) pendingRequestEmails.add(toEmail.toLowerCase().trim());
+                    }
+                });
     }
 
     private void checkExistingAndOpenPicker(String type) {
@@ -364,6 +405,33 @@ public class MembersFragment extends Fragment {
                 }).setNegativeButton("Cancel", null).show();
     }
 
+    private void showAddFriendDialog(String targetUid, String targetEmail, String targetName) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Add Friend")
+                .setMessage("Send friend request to " + targetName + "?")
+                .setPositiveButton("Add Friend", (dialog, which) -> sendFriendRequest(targetUid, targetEmail, targetName))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void sendFriendRequest(String targetUid, String targetEmail, String targetName) {
+        String myEmail = auth.getCurrentUser().getEmail().toLowerCase().trim();
+        Map<String, Object> request = new HashMap<>();
+        request.put("fromUid", auth.getUid());
+        request.put("fromEmail", myEmail);
+        request.put("fromName", currentUserName != null ? currentUserName : myEmail.split("@")[0]);
+        request.put("toUid", targetUid);
+        request.put("toEmail", targetEmail.toLowerCase().trim());
+        request.put("status", "pending");
+        request.put("type", "friend_request");
+
+        db.collection("friend_requests").add(request)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(getContext(), "Request Sent!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to send request", Toast.LENGTH_SHORT).show());
+    }
+
     private class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.ViewHolder> {
         private List<DocumentSnapshot> docs;
         private OnDocClickListener listener;
@@ -445,6 +513,31 @@ public class MembersFragment extends Fragment {
             
             holder.btnRemove.setOnClickListener(v -> removeMember(email));
             holder.btnDocs.setOnClickListener(v -> showUserDocs(uid, email, isDeleted));
+
+            holder.itemView.setOnClickListener(v -> {
+                if (isDeleted || uid == null || uid.equals(auth.getUid())) return;
+
+                // Check friendship status
+                boolean isAlreadyFriend = false;
+                for (Map<String, String> friend : currentUserFriends) {
+                    if (uid.equals(friend.get("uid"))) {
+                        isAlreadyFriend = true;
+                        break;
+                    }
+                }
+
+                if (isAlreadyFriend) {
+                    Toast.makeText(getContext(), "Already Friends", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (pendingRequestEmails.contains(email.toLowerCase().trim())) {
+                    Toast.makeText(getContext(), "Request Sent", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                showAddFriendDialog(uid, email, name);
+            });
             
             if (isDeleted) {
                 holder.tvName.setTypeface(null, android.graphics.Typeface.ITALIC);
