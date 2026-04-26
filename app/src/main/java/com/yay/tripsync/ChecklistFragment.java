@@ -71,6 +71,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     // Step 1: get the Firestore document ID from the tripCode
+    // Step 1: get the Firestore document ID from the tripCode
     private void resolveTripDocId() {
         db.collection("trips")
                 .whereEqualTo("tripCode", tripCode)
@@ -379,6 +380,7 @@ public class ChecklistFragment extends Fragment {
 
                 h.cbCheck.setOnCheckedChangeListener((btn, isChecked) -> toggleChecked(item));
 
+                // Long press to delete
                 // Long press to delete
                 h.itemView.setOnLongClickListener(v -> {
                     deleteItem(item);

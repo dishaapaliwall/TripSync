@@ -205,11 +205,12 @@ public class ItineraryFragment extends Fragment {
 
         Spinner spinnerDay = v.findViewById(R.id.spinnerDay);
         List<String> spinLabels = dayLabels.isEmpty() ? buildFallbackDays() : dayLabels;
+        
+        // Use custom layout for white text in spinner AND dropdown
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_spinner_item, spinLabels);
-        spinAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item, spinLabels);
+        spinAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinnerDay.setAdapter(spinAdapter);
 
         EditText etTime = v.findViewById(R.id.etTime);

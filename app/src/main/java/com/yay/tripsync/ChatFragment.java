@@ -48,6 +48,7 @@ public class ChatFragment extends Fragment {
 
     public ChatFragment() {
         // Required empty public constructor
+        // Required empty public constructor
     }
 
     public static ChatFragment newInstance(String tripId) {
@@ -162,6 +163,7 @@ public class ChatFragment extends Fragment {
         db.collection("chats").document(tempId).set(optimisticMessage)
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Failed to send message", Toast.LENGTH_SHORT).show();
+                    // Optional: remove from list on failure
                     // Optional: remove from list on failure
                     messageList.remove(optimisticMessage);
                     adapter.notifyDataSetChanged();

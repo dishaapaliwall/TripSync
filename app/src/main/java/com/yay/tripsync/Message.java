@@ -9,8 +9,10 @@ public class Message {
     private String tripId;
     private Timestamp timestamp;
     private String messageId; // For optimistic UI deduplication
+ // For optimistic UI deduplication
 
     public Message() {
+        // Required for Firestore
         // Required for Firestore
     }
 

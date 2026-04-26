@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    NEW FILE: app/src/main/res/layout/bottom_sheet_add_expense.xml
+    REVERTED TEXT, MAINTAINED SPINNER THEME: app/src/main/res/layout/bottom_sheet_add_expense.xml
 -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -79,7 +79,7 @@
             android:padding="12dp"
             android:inputType="numberDecimal" />
 
-        <!-- PAID BY — spinner populated with member names -->
+        <!-- PAID BY — Match gender spinner theme -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,10 +95,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/input_bg"
-            android:paddingHorizontal="12dp"
-            android:popupBackground="#1E1E1E" />
+            android:paddingStart="4dp"
+            android:paddingEnd="15dp"
+            android:spinnerMode="dropdown"
+            android:popupBackground="#000000" />
 
-        <!-- SPLIT AMONG — checkboxes, one per member -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,7 +117,6 @@
                 android:textColor="#FF2D55"
                 android:textSize="13sp" />
 
-            <!-- Select All toggle -->
             <TextView
                 android:id="@+id/tvSelectAll"
                 android:layout_width="wrap_content"
@@ -130,9 +130,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:padding="4dp" />
         </LinearLayout>
-
-        <!-- Dynamic checkboxes injected here by Java -->
-        <LinearLayout
+ <LinearLayout
             android:id="@+id/layoutMemberCheckboxes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -140,7 +138,6 @@
             android:background="@drawable/card_bg"
             android:padding="8dp" />
 
-        <!-- Per-person share preview -->
         <TextView
             android:id="@+id/tvSharePreview"
             android:layout_width="wrap_content"

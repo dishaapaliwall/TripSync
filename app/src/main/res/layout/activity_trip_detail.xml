@@ -168,11 +168,10 @@
                     android:id="@+id/budgetProgress"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="6dp"
+                    android:layout_height="8dp"
                     android:layout_marginTop="10dp"
                     android:progress="30"
-                    android:progressTint="#78182C"
-                    android:trackTint="#33FFFFFF" />
+                    android:progressDrawable="@drawable/budget_progress_drawable" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

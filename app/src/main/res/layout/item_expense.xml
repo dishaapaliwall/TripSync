@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     REPLACE: app/src/main/res/layout/item_expense.xml
-    Matches Figma exactly:
-    "Dinner at Fisherman's Wharf — ₹1,400"
-    "Paid by Arjun"
-    Optional: receipt thumbnail on right, delete icon
 -->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,39 +17,57 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Receipt thumbnail (shown only when a receipt image is attached) -->
-        <ImageView
-            android:id="@+id/imgReceipt"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <!-- Right Side Actions Container -->
+        <LinearLayout
+            android:id="@+id/rightActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/card_bg"
-            android:contentDescription="Receipt"
-            android:padding="2dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
+            android:gravity="end"
+            android:orientation="vertical">
 
-        <!-- Delete button -->
-        <ImageView
-            android:id="@+id/btnDelete"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/ic_close"
-            app:tint="#AA4466"
-            android:contentDescription="Delete expense"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            <!-- Delete button -->
+            <ImageView
+                android:id="@+id/btnDelete"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_close"
+                app:tint="#AA4466"
+                android:contentDescription="Delete expense"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <!-- Receipt thumbnail (square box below delete) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardReceiptThumbnail"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="#3D141C"
+                app:cardElevation="2dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/imgReceipt"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:padding="2dp"
+                    android:contentDescription="Receipt"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <!-- Left content block -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/btnDelete"
+            android:layout_toStartOf="@id/rightActions"
+            android:layout_marginEnd="12dp"
             android:orientation="vertical">
 
             <!-- Title — Amount on same row -->
@@ -82,17 +96,20 @@
                 android:id="@+id/tvReceiptTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/badge_bg"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
+                android:paddingVertical="4dp"
                 android:text="Receipt attached"
+                android:gravity="center_vertical"
                 app:drawableStartCompat="@drawable/ic_receipt"
-                android:drawablePadding="4dp"
+                android:drawablePadding="6dp"
                 app:drawableTint="#FFFFFF"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 

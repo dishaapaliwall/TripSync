@@ -16,6 +16,7 @@ public class Trip {
     private List<String> invitedEmails;
     private List<String> participants;
     private List<String> hiddenBy; // UIDs of users who hid this trip
+ // UIDs of users who hid this trip
 
     public Trip() {}
 

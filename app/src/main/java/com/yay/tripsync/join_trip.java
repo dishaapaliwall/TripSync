@@ -32,6 +32,7 @@ public class join_trip extends AppCompatActivity {
         etCode = findViewById(R.id.etCode);
 
         // 🔙 BACK BUTTON
+        // 🔙 BACK BUTTON
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         // 🔘 JOIN BUTTON

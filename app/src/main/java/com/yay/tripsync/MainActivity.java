@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Handle account switching
+        // Handle account switching
         String switchEmail = getIntent().getStringExtra("switch_email");
         if (switchEmail != null) {
             switchEmail = switchEmail.toLowerCase().trim();
@@ -238,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
+                            // 🔥 Sync Google User to Firestore
                             // 🔥 Sync Google User to Firestore
                             Map<String, Object> userData = new HashMap<>();
                             userData.put("name", user.getDisplayName());

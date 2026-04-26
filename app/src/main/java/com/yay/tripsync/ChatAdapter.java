@@ -76,6 +76,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.otherTime.setText(timeStr);
 
             // Avatar logic
+            // Avatar logic
             int avatarIndex = Math.abs(msg.getSenderId().hashCode()) % avatars.length;
             holder.otherAvatar.setImageResource(avatars[avatarIndex]);
         }

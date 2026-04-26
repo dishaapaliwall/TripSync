@@ -60,6 +60,7 @@ public class TripActivity extends AppCompatActivity {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             repairUserData(user); // 🔥 Ensure name and email are in Firestore
+ // 🔥 Ensure name and email are in Firestore
             setupUserProfile(user);
             startListeningToTrips(user);
         }

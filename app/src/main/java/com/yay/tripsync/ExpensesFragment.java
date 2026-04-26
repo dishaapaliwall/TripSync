@@ -180,7 +180,6 @@ public class ExpensesFragment extends Fragment {
                     tvEmpty.setVisibility(expenseList.isEmpty() ? View.VISIBLE : View.GONE);
                     calculateAndShowOwes();
                     
-                    // Saath ke saath update total spent in the main trip document
                     db.collection("trips").document(firestoreDocId).update("spent", totalSpent);
                 });
     }
@@ -281,9 +280,12 @@ public class ExpensesFragment extends Fragment {
         TextView tvSelectAll = v.findViewById(R.id.tvSelectAll);
         TextView tvSharePreview = v.findViewById(R.id.tvSharePreview);
         List<String> names = memberNames.isEmpty() ? buildFallbackNames() : new ArrayList<>(memberNames);
-        ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, names);
-        spinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        
+        // Fix: Use custom layout for both selection view and dropdown view
+        ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item, names);
+        spinAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinPaid.setAdapter(spinAdapter);
+
         final List<CheckBox> checkBoxes = new ArrayList<>();
         layoutCheckboxes.removeAllViews();
         for (int i = 0; i < names.size(); i++) {
@@ -368,17 +370,37 @@ public class ExpensesFragment extends Fragment {
             ExpenseItem item = list.get(pos);
             h.tvTitle.setText(item.description + " \u2014 \u20B9" + (int)item.amount);
             h.tvPaidBy.setText("Paid by " + item.paidBy);
-            h.tvReceiptTag.setVisibility(item.receiptUrl != null && !item.receiptUrl.isEmpty() ? View.VISIBLE : View.GONE);
-            if (item.receiptUrl != null && !item.receiptUrl.isEmpty()) {
-                h.imgReceipt.setVisibility(View.VISIBLE);
-                Glide.with(requireContext()).load(item.receiptUrl).placeholder(R.drawable.card_bg).into(h.imgReceipt);
-            } else h.imgReceipt.setVisibility(View.GONE);
+            
+            boolean hasReceipt = item.receiptUrl != null && !item.receiptUrl.isEmpty();
+            h.tvReceiptTag.setVisibility(hasReceipt ? View.VISIBLE : View.GONE);
+            h.cardReceiptThumbnail.setVisibility(hasReceipt ? View.VISIBLE : View.GONE);
+            
+            if (hasReceipt) {
+                Log.d(TAG, "Loading receipt: " + item.receiptUrl);
+                Glide.with(requireContext())
+                    .load(item.receiptUrl)
+                    .override(200, 200)
+                    .error(R.drawable.ic_receipt)
+                    .into(h.imgReceipt);
+                
+                View.OnClickListener openReceipt = v -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.receiptUrl));
+                    startActivity(intent);
+                };
+                h.imgReceipt.setOnClickListener(openReceipt);
+                h.tvReceiptTag.setOnClickListener(openReceipt);
+            } else {
+                h.imgReceipt.setOnClickListener(null);
+                h.tvReceiptTag.setOnClickListener(null);
+            }
+            
             h.btnDelete.setOnClickListener(v -> deleteExpense(item.docId));
         }
         @Override public int getItemCount() { return list.size(); }
         class VH extends RecyclerView.ViewHolder {
             TextView tvTitle, tvPaidBy, tvReceiptTag;
             android.widget.ImageView imgReceipt, btnDelete;
+            CardView cardReceiptThumbnail;
             VH(View v) {
                 super(v);
                 tvTitle = v.findViewById(R.id.tvExpenseTitle);
@@ -386,6 +408,7 @@ public class ExpensesFragment extends Fragment {
                 tvReceiptTag = v.findViewById(R.id.tvReceiptTag);
                 imgReceipt = v.findViewById(R.id.imgReceipt);
                 btnDelete = v.findViewById(R.id.btnDelete);
+                cardReceiptThumbnail = v.findViewById(R.id.cardReceiptThumbnail);
             }
         }
     }

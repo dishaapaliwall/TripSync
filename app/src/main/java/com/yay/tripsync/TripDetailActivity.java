@@ -136,6 +136,7 @@ public class TripDetailActivity extends AppCompatActivity {
                     String ownerId = doc.getString("userId");
 
                     // Update Budget UI
+                    // Update Budget UI
                     tvTotalBudget.setText("Total: ₹ " + (int)budget);
                     tvSpent.setText("Spent: ₹ " + (int)spent);
                     tvRemaining.setText("Remaining: ₹ " + (int)(budget - spent));
@@ -169,6 +170,7 @@ public class TripDetailActivity extends AppCompatActivity {
                                             totalMembers++;
                                         }
                                     } else {
+                                        // If account is deleted/not found, count it as a member (matches MembersFragment)
                                         // If account is deleted/not found, count it as a member (matches MembersFragment)
                                         totalMembers++;
                                     }
