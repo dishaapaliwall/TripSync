@@ -276,7 +276,6 @@ public class MembersFragment extends Fragment {
             if (!queryDocumentSnapshots.isEmpty()) {
                 String tripDocId = queryDocumentSnapshots.getDocuments().get(0).getId();
                 
-                // 🔥 Real-time listener for documents
                 if (docsListener != null) docsListener.remove();
                 
                 docsListener = db.collection("trips").document(tripDocId).collection("documents")

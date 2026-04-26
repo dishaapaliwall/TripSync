@@ -103,7 +103,6 @@ public class SettingsActivity extends AppCompatActivity {
             emailList.add(currentEmail);
         }
 
-        // 🔥 Fetch UIDs for consistent avatars
         db.collection("users").get().addOnSuccessListener(queryDocumentSnapshots -> {
             Map<String, String> emailToUid = new HashMap<>();
             for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
@@ -169,7 +168,6 @@ public class SettingsActivity extends AppCompatActivity {
             holder.ivCheck.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
             holder.tvStatus.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
             
-            // 🔥 CONSISTENT AVATAR LOGIC (Matches ProfileActivity and MembersFragment)
             int[] avatars = {R.drawable.panda, R.drawable.jaguar, R.drawable.ganesha, R.drawable.cow, R.drawable.cat, R.drawable.bird, R.drawable.apteryx};
             
             String uid = emailToUid.get(email.toLowerCase().trim());
@@ -177,7 +175,6 @@ public class SettingsActivity extends AppCompatActivity {
                 int avatarIndex = Math.abs(uid.hashCode()) % avatars.length;
                 holder.imgAccount.setImageResource(avatars[avatarIndex]);
             } else {
-                // Fallback to email hash if user doc not found (rare)
                 int avatarIndex = Math.abs(email.hashCode()) % avatars.length;
                 holder.imgAccount.setImageResource(avatars[avatarIndex]);
             }

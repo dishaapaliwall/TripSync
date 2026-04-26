@@ -6,7 +6,6 @@
     android:background="#1C0808"
     android:padding="24dp">
 
-    <!-- Icon -->
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -15,7 +14,6 @@
         android:tint="#FF2D55"
         android:layout_marginBottom="16dp" />
 
-    <!-- Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,24 +24,22 @@
         android:gravity="center"
         android:layout_marginBottom="12dp" />
 
-    <!-- Message -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enter the name of the place where everyone should meet."
+        android:text="Enter a place or use your current location."
         android:textColor="#BBBBBB"
         android:fontFamily="@font/dm_sans_regular"
         android:textSize="14sp"
         android:gravity="center"
         android:layout_marginBottom="20dp" />
 
-    <!-- Input Box -->
     <EditText
         android:id="@+id/etDestinationName"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:background="@drawable/dialog_input_background"
-        android:hint="e.g. Goa Airport, Baga Beach"
+        android:hint="e.g. Baga Beach, Airport"
         android:textColorHint="#555555"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
@@ -51,9 +47,35 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:singleLine="true"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="12dp" />
 
-    <!-- Action buttons -->
+    <LinearLayout
+        android:id="@+id/btnCurrentLocation"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/dialog_btn_outline"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_location"
+            android:tint="#FF2D55"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Use Current Location"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/dm_sans_medium"
+            android:textSize="14sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

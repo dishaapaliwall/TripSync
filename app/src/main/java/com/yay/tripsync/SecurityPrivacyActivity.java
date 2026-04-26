@@ -39,12 +39,10 @@ public class SecurityPrivacyActivity extends AppCompatActivity {
         ImageView btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
 
-        // 🔥 1. TEMPORARY DEACTIVATION
         findViewById(R.id.btnDeactivateAccount).setOnClickListener(v -> {
             showSecurityDialog(false);
         });
 
-        // 🔥 2. PERMANENT DELETION
         findViewById(R.id.btnDeleteAccountPermanent).setOnClickListener(v -> {
             showSecurityDialog(true);
         });
@@ -114,7 +112,6 @@ public class SecurityPrivacyActivity extends AppCompatActivity {
             batch.delete(db.collection("users").document(userId));
 
             batch.commit().addOnSuccessListener(aVoid -> {
-                // 🔥 Remove from Switch Account list before deleting Auth
                 SharedPreferences prefs = getSharedPreferences("TripSyncAccounts", MODE_PRIVATE);
                 Set<String> savedEmails = new HashSet<>(prefs.getStringSet("saved_emails", new HashSet<>()));
                 savedEmails.remove(userEmail);

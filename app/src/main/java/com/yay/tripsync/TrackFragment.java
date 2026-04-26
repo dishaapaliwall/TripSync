@@ -178,7 +178,6 @@ public class TrackFragment extends Fragment {
 
     private void startLocationSharing() {
         if (actualDocId == null) {
-            // Defer until doc ID is loaded
             return;
         }
         
@@ -283,8 +282,14 @@ public class TrackFragment extends Fragment {
         }
 
         EditText etInput = dialogView.findViewById(R.id.etDestinationName);
+        View btnCurrentLoc = dialogView.findViewById(R.id.btnCurrentLocation);
         TextView btnCancel = dialogView.findViewById(R.id.btnCancel);
         TextView btnSet = dialogView.findViewById(R.id.btnSet);
+
+        btnCurrentLoc.setOnClickListener(v -> {
+            useCurrentLocationAsMeetup();
+            dialog.dismiss();
+        });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnSet.setOnClickListener(v -> {
@@ -300,10 +305,36 @@ public class TrackFragment extends Fragment {
         dialog.show();
     }
 
+    private void useCurrentLocationAsMeetup() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locationPermissionLauncher.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
+            return;
+        }
+
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        String addressName = "Live Location";
+                        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                        try {
+                            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            if (addresses != null && !addresses.isEmpty()) {
+                                addressName = addresses.get(0).getLocality();
+                                if (addressName == null) addressName = addresses.get(0).getSubLocality();
+                                if (addressName == null) addressName = "Current Point";
+                            }
+                        } catch (IOException ignored) {}
+                        
+                        saveMeetupPoint(addressName, location.getLatitude(), location.getLongitude(), "Live Location");
+                    } else {
+                        Toast.makeText(getContext(), "Could not get current location. Ensure GPS is on.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void geocodeAndSave(String destinationName) {
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
-            // Use 5 results for better accuracy fallback
             List<Address> addresses = geocoder.getFromLocationName(destinationName, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
