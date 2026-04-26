@@ -175,19 +175,32 @@
                 android:textSize="14sp"
                 android:layout_marginStart="8dp" />
 
-            <EditText
-                android:id="@+id/etInvite"
+            <RelativeLayout
+                android:id="@+id/btnSelectFriends"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/input_bg"
-                android:hint="Enter email address"
-                android:inputType="textEmailAddress"
-                android:padding="12dp"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#888888"
-                android:textSize="16sp" />
+                android:paddingHorizontal="12dp">
+
+                <TextView
+                    android:id="@+id/tvSelectedCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Select Friends"
+                    android:textColor="#888888"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_friends"
+                    app:tint="#888888" />
+            </RelativeLayout>
 
             <!-- 🔘 CREATE BUTTON -->
             <androidx.appcompat.widget.AppCompatButton

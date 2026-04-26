@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#121212"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Friends"
+        android:textColor="#FF2D55"
+        android:textSize="20sp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:layout_marginBottom="15dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSelectFriends"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnDone"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/btn_red"
+        android:text="Done"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:textStyle="bold"/>
+
+</LinearLayout>
