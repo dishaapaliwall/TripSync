@@ -43,7 +43,10 @@
                 android:paddingEnd="10dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:text="✓ Ready"
+                android:text="Ready"
+                android:drawableStart="@drawable/ic_tick_small"
+                android:drawablePadding="4dp"
+                app:drawableTint="#FFFFFF"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:visibility="gone" />
@@ -123,7 +126,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="24dp"
         android:src="@drawable/ic_add"
-        app:backgroundTint="#FF2D55"
+        app:backgroundTint="#78182C"
         app:fabSize="normal"
         app:tint="#FFFFFF" />
 

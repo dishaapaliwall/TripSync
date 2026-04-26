@@ -14,7 +14,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -25,6 +30,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private TextView txtName, txtEmail, txtUpcomingCount, txtCompletedCount;
     private CircleImageView profileImage;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +134,15 @@ public class ProfileActivity extends AppCompatActivity {
                     int completed = 0;
 
                     if (value != null) {
+                        Date today = Calendar.getInstance().getTime();
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(today);
+                        cal.set(Calendar.HOUR_OF_DAY, 0);
+                        cal.set(Calendar.MINUTE, 0);
+                        cal.set(Calendar.SECOND, 0);
+                        cal.set(Calendar.MILLISECOND, 0);
+                        today = cal.getTime();
+
                         for (DocumentSnapshot doc : value.getDocuments()) {
                             // 🔥 Check if trip is hidden by current user
                             List<String> hiddenBy = (List<String>) doc.get("hiddenBy");
@@ -135,13 +150,27 @@ public class ProfileActivity extends AppCompatActivity {
                                 continue; // Skip hidden trips
                             }
 
-                            String status = doc.getString("status");
-                            if (status != null) {
-                                String cleanStatus = status.trim();
-                                if (cleanStatus.equalsIgnoreCase("Upcoming") || cleanStatus.equalsIgnoreCase("Ongoing")) {
-                                    upcoming++;
-                                } else if (cleanStatus.equalsIgnoreCase("Completed")) {
-                                    completed++;
+                            String startDateStr = doc.getString("startDate");
+                            String endDateStr = doc.getString("endDate");
+
+                            if (startDateStr != null && endDateStr != null) {
+                                try {
+                                    Date startDate = dateFormat.parse(startDateStr);
+                                    Date endDate = dateFormat.parse(endDateStr);
+
+                                    if (today.before(startDate)) {
+                                        upcoming++;
+                                    } else if (today.after(endDate)) {
+                                        completed++;
+                                        
+                                        // Update status to Completed in backend if it wasn't already
+                                        String currentStatus = doc.getString("status");
+                                        if (currentStatus == null || !currentStatus.equalsIgnoreCase("Completed")) {
+                                            doc.getReference().update("status", "Completed");
+                                        }
+                                    }
+                                } catch (ParseException e) {
+                                    Log.e("ProfileStats", "Date parse error: " + e.getMessage());
                                 }
                             }
                         }

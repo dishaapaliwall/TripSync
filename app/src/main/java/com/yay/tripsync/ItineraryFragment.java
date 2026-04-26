@@ -210,7 +210,7 @@ public class ItineraryFragment extends Fragment {
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(
                 requireContext(),
                 R.layout.spinner_item, spinLabels);
-        spinAdapter.setDropDownViewResource(R.layout.spinner_item);
+        spinAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinnerDay.setAdapter(spinAdapter);
 
         EditText etTime = v.findViewById(R.id.etTime);

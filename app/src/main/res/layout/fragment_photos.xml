@@ -35,7 +35,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="24dp"
         android:src="@drawable/ic_add"
-        app:backgroundTint="#FF2D55"
+        app:backgroundTint="#78182C"
         app:fabSize="normal"
         app:tint="#FFFFFF" />
 

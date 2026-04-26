@@ -48,7 +48,7 @@
         android:layout_height="50dp"
         android:background="@drawable/input_bg"
         android:paddingHorizontal="12dp"
-        android:popupBackground="#1E1E1E" />
+        android:popupBackground="#000000" />
 
     <!-- TIME label -->
     <TextView

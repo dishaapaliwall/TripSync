@@ -1,8 +1,10 @@
 package com.yay.tripsync;
 
 import android.app.AlertDialog;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -242,7 +244,12 @@ public class ChecklistFragment extends Fragment {
             // Status label on the right
             TextView tvStatus = new TextView(getContext());
             if (Boolean.TRUE.equals(isReady)) {
-                tvStatus.setText("✓ Ready");
+                tvStatus.setText("Ready");
+                tvStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_tick_small, 0, 0, 0);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    tvStatus.setCompoundDrawableTintList(ColorStateList.valueOf(0xFF4CAF50));
+                }
+                tvStatus.setCompoundDrawablePadding(dpToPx(4));
                 tvStatus.setTextColor(0xFF4CAF50);
                 tvStatus.setTypeface(null, android.graphics.Typeface.BOLD);
             } else {
