@@ -68,7 +68,7 @@
         <item>Other</item>
     </string-array>
 
-    <!-- 🔥 GOOGLE SIGN-IN (IMPORTANT) -->
+
     <string name="default_web_client_id">39577886215-hrm9pjpj5jidigqifinl04tldsfjprai.apps.googleusercontent.com</string>
 
 </resources>
